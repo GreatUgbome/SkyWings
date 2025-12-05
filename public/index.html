@@ -178,149 +178,45 @@
         .toast.success { border-left-color: var(--success); }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* Boarding Pass Styles - Modern Professional Look */
+        /* Boarding Pass Styles */
         .boarding-pass-card {
-            background: #fff;
-            color: #1e293b;
-            border-radius: 16px;
-            margin: 30px auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            margin: 20px 0; 
+            display:flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            text-align:left; 
+            box-shadow: var(--shadow-lg);
             position: relative;
             overflow: hidden;
-            max-width: 700px;
-            border: 1px solid #e2e8f0;
         }
 
-        .bp-top {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            padding: 20px 30px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .bp-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .bp-class {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .bp-main {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 30px;
-        }
-
-        .bp-route {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .bp-city h2 {
-            font-size: 3rem;
-            line-height: 1;
-            margin-bottom: 5px;
-            color: var(--primary);
-        }
-
-        .bp-city p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .bp-plane-icon {
-            color: var(--border);
-            font-size: 1.5rem;
-            transform: rotate(90deg);
-        }
-
-        .bp-details-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .bp-item label {
-            display: block;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            letter-spacing: 0.5px;
-        }
-
-        .bp-item strong {
-            display: block;
-            font-size: 1.1rem;
-            color: var(--text-main);
-        }
-
-        .bp-barcode-section {
-            border-left: 2px dashed #e2e8f0;
-            padding-left: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
-        }
-
-        .bp-qr {
-            width: 120px;
-            height: 120px;
-            background: #1e293b; /* Placeholder for QR */
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.8rem;
-        }
-
-        .bp-footer {
-            background: #f8fafc;
-            padding: 15px 30px;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Cutout circles decoration */
-        .boarding-pass-card::before, .boarding-pass-card::after {
+        .boarding-pass-card::before {
             content: '';
             position: absolute;
-            background: var(--bg-body);
-            width: 30px;
-            height: 30px;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--bg-card);
             border-radius: 50%;
-            top: 215px; /* Adjust based on layout */
-            z-index: 10;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
-        .boarding-pass-card::before { left: -15px; }
-        .boarding-pass-card::after { right: -15px; }
+
+        .boarding-pass-card::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--bg-card);
+            border-radius: 50%;
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -333,79 +229,42 @@
             .booking-layout { grid-template-columns: 1fr; }
             .hero h1 { font-size: 2.5rem; }
             .form-grid { grid-template-columns: 1fr; }
-            
-            .boarding-pass-card { margin: 10px; }
-            .bp-main { grid-template-columns: 1fr; gap: 20px; }
-            .bp-barcode-section { border-left: none; border-top: 2px dashed #e2e8f0; padding-left: 0; padding-top: 20px; }
-            .boarding-pass-card::before, .boarding-pass-card::after { display: none; }
         }
 
-        /* PRINT STYLES - Professional A4 Format */
+        /* PRINT STYLES */
         @media print {
-            @page { margin: 0; size: auto; }
-            body { 
-                background: white; 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact; 
-                margin: 0;
-                padding: 0;
-            }
             .navbar, .btn-primary, .btn-secondary, .footer, .back-btn, .action-buttons, #toast-container, .hero, .nav-toggle, #theme-toggle {
                 display: none !important;
             }
-            .section { display: none; }
-            #confirmation { 
-                display: block !important; 
-                position: absolute; 
-                top: 0; 
-                left: 0; 
-                width: 100%; 
-                height: 100%;
-                z-index: 9999;
+            body, .section {
                 background: white;
+                color: black;
+                padding: 0;
+                margin: 0;
             }
-            .container { 
-                width: 100%; 
-                max-width: 100%; 
-                padding: 0; 
-                margin: 0; 
-                box-shadow: none; 
+            .section.active {
+                display: block;
+                min-height: auto;
             }
-            .step-card { 
-                box-shadow: none; 
-                border: none; 
-                padding: 0; 
-                margin: 0; 
+            .container {
+                max-width: 100%;
+                width: 100%;
+                box-shadow: none;
             }
-            
-            /* Hide success icon and header text for print */
-            #confirmation h2, #confirmation p, #confirmation .fa-check-circle {
-                display: none;
+            .step-card {
+                border: none;
+                box-shadow: none;
             }
-
             .boarding-pass-card {
                 box-shadow: none;
-                border: 2px solid #000;
-                margin: 50px auto;
-                max-width: 800px;
-                page-break-inside: avoid;
+                border: 1px solid #000;
+                background: white;
+                color: black;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
-            
-            .bp-top { background: #000 !important; color: #fff !important; }
-            .bp-main { grid-template-columns: 2fr 1fr; }
-            .bp-city h2 { color: #000 !important; }
-            .bp-item label { color: #555 !important; }
-            .bp-item strong { color: #000 !important; }
-            .bp-qr { background: #000 !important; }
-            
-            /* Add print footer */
-            .boarding-pass-wrapper::after {
-                content: "Keep this boarding pass for your records. Please arrive at the gate 30 minutes before departure.";
-                display: block;
-                text-align: center;
-                margin-top: 20px;
-                font-size: 10pt;
-                color: #555;
+            .boarding-pass-card * {
+                color: black !important;
             }
         }
     </style>
@@ -615,7 +474,6 @@
                                 <th>Flight No.</th>
                                 <th>Route</th>
                                 <th>Date</th>
-                                <th>Bookings</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -802,7 +660,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 id="admin-modal-title">Add Flight</h3>
-                    <span class="close-modal close-admin-modal">&times;</span>
+                    <span class="close-modal admin-close">&times;</span>
                 </div>
                 <form id="admin-flight-form" class="form-grid" style="grid-template-columns: 1fr 1fr;">
                     <input type="hidden" id="edit-flight-id">
@@ -855,39 +713,6 @@
                     </div>
                     <div style="grid-column: 1/-1;">
                         <button type="submit" class="btn-primary btn-block">Save Flight</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Admin Booking Edit Modal -->
-        <div id="admin-booking-modal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Edit Booking</h3>
-                    <span class="close-modal close-booking-modal">&times;</span>
-                </div>
-                <form id="admin-booking-form" class="form-grid">
-                    <input type="hidden" id="edit-booking-id">
-                    <div class="input-group" style="grid-column: 1/-1;">
-                        <label>Passenger Name</label>
-                        <input type="text" id="edit-bk-name" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Contact Email</label>
-                        <input type="email" id="edit-bk-email" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Status</label>
-                        <select id="edit-bk-status">
-                            <option value="Confirmed">Confirmed</option>
-                            <option value="Check-In">Check-In</option>
-                            <option value="Boarded">Boarded</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div style="grid-column: 1/-1;">
-                        <button type="submit" class="btn-primary btn-block">Update Booking</button>
                     </div>
                 </form>
             </div>
@@ -1061,8 +886,7 @@
 
         const State = {
             flights: [],
-            bookings: [], // User bookings
-            allBookings: [], // Admin bookings (public)
+            bookings: [],
             currentSearch: {},
             selectedFlight: null,
             selectedSeats: [],
@@ -1082,6 +906,7 @@
         // Fetch Flights (Public Data)
         function subscribeToFlights() {
             if (!userId) return;
+            // Using public data path for shared flight info
             const flightsCol = collection(db, 'artifacts', appId, 'public', 'data', 'flights');
             
             // Real-time listener for flights
@@ -1092,24 +917,28 @@
                 });
                 
                 if (flights.length === 0) {
+                    // Seed initial data if empty
                     const initialFlights = generateSampleFlights();
                     initialFlights.forEach(async (flight) => {
                         await addDoc(flightsCol, flight);
                     });
                 } else {
                     State.flights = flights;
+                    // Update UI if on results page or admin panel
                     if (document.getElementById('admin').classList.contains('active')) {
                         renderAdminPanel();
                     }
                 }
             }, (error) => {
                 console.error("Error fetching flights: ", error);
+                showToast("Error connecting to flight database", "error");
             });
         }
 
-        // Fetch User Bookings (Private Data)
-        function subscribeToUserBookings() {
+        // Fetch Bookings (User Private Data)
+        function subscribeToBookings() {
             if (!userId) return;
+            // Using user-specific path
             const bookingsCol = collection(db, 'artifacts', appId, 'users', userId, 'bookings');
             
             onSnapshot(bookingsCol, (snapshot) => {
@@ -1119,30 +948,15 @@
                 });
                 State.bookings = bookings;
                 
+                // Update UI if on manage page or admin panel
                 if (document.getElementById('manage').classList.contains('active')) {
                     renderBookings();
                 }
-            }, (error) => {
-                console.error("Error fetching bookings: ", error);
-            });
-        }
-
-        // Fetch All Bookings (Public Data - For Admin)
-        function subscribeToAllBookings() {
-            if (!userId) return;
-            // Fetch from public bookings collection for admin view
-            const publicBookingsCol = collection(db, 'artifacts', appId, 'public', 'data', 'bookings');
-            
-            onSnapshot(publicBookingsCol, (snapshot) => {
-                const allBookings = [];
-                snapshot.forEach((doc) => {
-                    allBookings.push({ id: doc.id, ...doc.data() });
-                });
-                State.allBookings = allBookings;
-                
                 if (document.getElementById('admin').classList.contains('active')) {
                     renderAdminPanel();
                 }
+            }, (error) => {
+                console.error("Error fetching bookings: ", error);
             });
         }
 
@@ -1150,8 +964,7 @@
 
         function initApp() {
             subscribeToFlights();
-            subscribeToUserBookings();
-            subscribeToAllBookings();
+            subscribeToBookings();
             setupEventListeners();
             setupTheme();
             setDefaultDates();
@@ -1168,6 +981,7 @@
                 if (trackRef) {
                     navigateTo('tracking');
                     document.getElementById('tracking-number').value = trackRef;
+                    // Need a slight delay to ensure data is loaded
                     setTimeout(trackFlight, 1500); 
                 }
             }
@@ -1262,14 +1076,10 @@
                 });
             });
 
-            document.querySelector('.close-admin-modal').addEventListener('click', () => {
+            document.querySelector('.admin-close').addEventListener('click', () => {
                 document.getElementById('admin-modal').classList.remove('open');
             });
-            document.querySelector('.close-booking-modal').addEventListener('click', () => {
-                document.getElementById('admin-booking-modal').classList.remove('open');
-            });
             document.getElementById('admin-flight-form').addEventListener('submit', handleAdminSave);
-            document.getElementById('admin-booking-form').addEventListener('submit', handleBookingSave);
         }
 
         function navigateTo(sectionId) {
@@ -1349,6 +1159,8 @@
             if (results.length === 0) {
                 results = [
                     {
+                        // Use a string ID for consistency if we save to Firebase later
+                        // But for now, these are ephemeral unless booked
                         id: 'temp_' + Date.now(), 
                         airline: "SkyWings",
                         flightNumber: `SKW${Math.floor(Math.random() * 900) + 100}`,
@@ -1425,14 +1237,11 @@
 
         // Attach global functions
         window.initBooking = function(flightId) {
-            const idStr = String(flightId);
-            
-            let f = State.flights.find(f => String(f.id) === idStr) || 
-                    State.lastSearchResults.find(f => String(f.id) === idStr);
+            // Check both existing flights AND temporary search results
+            let f = State.flights.find(f => f.id === flightId) || State.lastSearchResults.find(f => f.id === flightId);
             
             if (!f) {
-                console.error("Flight not found for ID:", flightId);
-                showToast("Session expired, please search again", "error");
+                showToast("Session expired or flight not found", "error");
                 return;
             }
 
@@ -1572,9 +1381,11 @@
             
             // If flight is temporary (from search), save it to Firestore publicly so admin can see/track it
             if (flightToBook.id.toString().startsWith('temp_')) {
+                // Remove the temp ID so Firestore generates a new one, or set a proper one
                 delete flightToBook.id; 
                 try {
                     const flightRef = await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'flights'), flightToBook);
+                    // Update the local object with the new real ID
                     flightToBook.id = flightRef.id;
                 } catch (e) {
                     console.error("Error saving flight:", e);
@@ -1585,26 +1396,19 @@
 
             const booking = {
                 ref: bookingRef,
-                flight: flightToBook, 
+                flight: flightToBook, // This now includes the persistent ID if it was new
                 seats: State.selectedSeats,
                 date: new Date().toLocaleDateString(),
                 email: document.getElementById('contact-email').value,
                 paxName: names[0].value,
                 total: document.getElementById('total-price').innerText,
-                status: 'Confirmed',
                 userId: userId
             };
 
+            // Save booking to Firestore (Private user data)
             try {
-                // 1. Save to User Private Collection
                 await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), booking);
                 
-                // 2. Save to Public Collection (For Admin View)
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), {
-                    ...booking,
-                    bookedBy: userId // Store who booked it for admin ref
-                });
-
                 document.getElementById('booking-ref').innerText = bookingRef;
                 renderConfirmationPass(booking);
                 navigateTo('confirmation');
@@ -1616,86 +1420,36 @@
         }
 
         function renderConfirmationPass(booking) {
-            // Generate a random gate and terminal for realism
-            const gate = 'G' + Math.floor(Math.random() * 20 + 1);
-            const terminal = 'T' + Math.floor(Math.random() * 3 + 1);
-            const boardingTime = "07:45 AM"; // Example, could be calculated
-
             document.querySelector('.boarding-pass-wrapper').innerHTML = `
                 <div class="boarding-pass-card">
-                    <div class="bp-top">
-                        <div class="bp-logo">
-                            <i class="fas fa-plane-departure"></i>
-                            <span>SkyWings</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">
+                        <span style="font-weight: 700; font-size: 1.2rem;">SKYWINGS</span>
+                        <span>${booking.flight.date}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 2.5rem; font-weight: 700;">${booking.flight.from.substring(0,3).toUpperCase()}</span>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">${booking.flight.departure.time}</div>
                         </div>
-                        <div class="bp-class">
-                            Economy Class
+                        <i class="fas fa-plane" style="font-size: 1.5rem; opacity: 0.5;"></i>
+                        <div style="text-align: right;">
+                            <span style="font-size: 2.5rem; font-weight: 700;">${booking.flight.to.substring(0,3).toUpperCase()}</span>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">${booking.flight.arrival.time}</div>
                         </div>
                     </div>
-                    <div class="bp-main">
-                        <div class="bp-info">
-                            <div class="bp-route">
-                                <div class="bp-city text-left">
-                                    <h2>${booking.flight.from.substring(0,3).toUpperCase()}</h2>
-                                    <p>${booking.flight.from.split('(')[0]}</p>
-                                </div>
-                                <div class="bp-plane-icon">
-                                    <i class="fas fa-plane"></i>
-                                </div>
-                                <div class="bp-city text-right">
-                                    <h2>${booking.flight.to.substring(0,3).toUpperCase()}</h2>
-                                    <p>${booking.flight.to.split('(')[0]}</p>
-                                </div>
-                            </div>
-                            
-                            <div class="bp-details-grid">
-                                <div class="bp-item">
-                                    <label>Passenger</label>
-                                    <strong>${booking.paxName}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Flight</label>
-                                    <strong>${booking.flight.flightNumber}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Date</label>
-                                    <strong>${booking.flight.date}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Gate</label>
-                                    <strong>${gate}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Boarding Time</label>
-                                    <strong>${booking.flight.departure.time}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Seat</label>
-                                    <strong>${booking.seats.join(', ')}</strong>
-                                </div>
-                            </div>
+                    <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                        <div>
+                            <span style="font-size: 0.7rem; opacity: 0.7; text-transform: uppercase;">Passenger</span>
+                            <div style="font-weight: 600;">${booking.paxName}</div>
                         </div>
-                        
-                        <div class="bp-barcode-section">
-                            <div class="bp-item">
-                                <label>Terminal</label>
-                                <strong>${terminal}</strong>
-                            </div>
-                            <div class="bp-qr">
-                                <!-- Simulated QR Code Visual -->
-                                <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap: 2px;">
-                                    ${Array(36).fill(0).map(() => `<div style="width:10px; height:10px; background:${Math.random() > 0.5 ? 'white' : 'transparent'}"></div>`).join('')}
-                                </div>
-                            </div>
-                            <div class="bp-item">
-                                <label>Ref</label>
-                                <strong style="font-size: 0.9rem;">${booking.ref}</strong>
-                            </div>
+                        <div>
+                            <span style="font-size: 0.7rem; opacity: 0.7; text-transform: uppercase;">Flight</span>
+                            <div style="font-weight: 600;">${booking.flight.flightNumber}</div>
                         </div>
-                    </div>
-                    <div class="bp-footer">
-                        <span>SkyWings Airlines Inc.</span>
-                        <span>Electronic Ticket</span>
+                        <div>
+                            <span style="font-size: 0.7rem; opacity: 0.7; text-transform: uppercase;">Seat</span>
+                            <div style="font-weight: 600;">${booking.seats.join(', ')}</div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1711,13 +1465,14 @@
             resultDiv.innerHTML = '<div class="loader-container"><div class="plane-loader"><i class="fas fa-plane"></i></div></div>';
 
             setTimeout(() => {
-                // 1. Check Public Bookings First (Since we now save globally)
-                const booking = State.allBookings.find(b => b.ref.toUpperCase() === input) || 
-                                State.bookings.find(b => b.ref.toUpperCase() === input);
+                // 1. Check Bookings
+                const booking = State.bookings.find(b => b.ref.toUpperCase() === input);
                 
                 if (booking) {
+                    // Try to find the live flight object to get real-time status updates
+                    // If flight was deleted or ID changed, fallback to booking snapshot
                     const currentFlight = State.flights.find(f => f.id === booking.flight.id) || booking.flight;
-                    const status = booking.status || currentFlight.status || "On Time";
+                    const status = currentFlight.status || "On Time";
                     
                     const statusClass = getStatusClass(status);
 
@@ -1803,13 +1558,13 @@
             document.getElementById('no-bookings').classList.add('hidden');
             list.innerHTML = State.bookings.map(b => {
                 const realFlight = State.flights.find(f => f.id === b.flight.id) || b.flight;
-                const status = b.status || realFlight.status || "On Time";
+                const status = realFlight.status || "On Time";
                 
                 return `
                 <div class="flight-card">
                     <div style="grid-column: 1/-1; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px;">
                         <strong>Ref: ${b.ref}</strong>
-                        <span class="text-primary"><i class="fas fa-check-circle"></i> ${status}</span>
+                        <span class="text-primary"><i class="fas fa-check-circle"></i> Confirmed (${status})</span>
                     </div>
                     <div style="grid-column: 1/-1;">
                         <h4>${realFlight.from} to ${realFlight.to}</h4>
@@ -1825,81 +1580,36 @@
 
         window.renderAdminPanel = function() {
             document.getElementById('total-flights-count').innerText = State.flights.length;
-            // Count total bookings from public source
-            document.getElementById('total-bookings-count').innerText = State.allBookings.length;
+            document.getElementById('total-bookings-count').innerText = State.bookings.length;
             
-            // Flights Table with Passenger Count
             const tableBody = document.getElementById('admin-flights-body');
-            tableBody.innerHTML = State.flights.map(f => {
-                // Count bookings for this flight
-                const bookingCount = State.allBookings.filter(b => b.flight.id === f.id).length;
-                
-                return `
+            tableBody.innerHTML = State.flights.map(f => `
                 <tr>
                     <td>${f.flightNumber}</td>
                     <td>${f.from} ➝ ${f.to}</td>
                     <td>${f.date}</td>
-                    <td><span class="status-badge" style="background:var(--border);">${bookingCount} Pax</span></td>
                     <td>${f.status || 'On Time'}</td>
                     <td>
                         <button class="btn-edit" onclick="openAdminModal('${f.id}')"><i class="fas fa-edit"></i></button>
                         <button class="btn-danger" onclick="deleteFlight('${f.id}')"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
-            `}).join('');
+            `).join('');
 
-            // Bookings Table with Edit capability
             const bookingBody = document.getElementById('admin-bookings-body');
-            bookingBody.innerHTML = State.allBookings.map((b, i) => `
+            // For this implementation (User isolated), admin only sees their own bookings unless we implement an 'all users' query (which requires different rules/logic).
+            // For now, it shows current user bookings in admin panel for demo purposes.
+            bookingBody.innerHTML = State.bookings.map((b, i) => `
                 <tr>
                     <td>${b.ref}</td>
                     <td>${b.paxName}</td>
                     <td>${b.flight.flightNumber}</td>
-                    <td><span style="color:var(--success); font-weight:600;">${b.status || 'Confirmed'}</span></td>
+                    <td><span style="color:var(--success);">Confirmed</span></td>
                     <td>
-                        <button class="btn-edit" onclick="openBookingEditModal('${b.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-danger" onclick="cancelBooking('${b.id}')"><i class="fas fa-times"></i></button>
+                        <button class="btn-danger btn-sm" onclick="cancelBooking('${b.firebaseId}')">Cancel</button>
                     </td>
                 </tr>
             `).join('');
-        }
-
-        // --- Booking Management Logic ---
-
-        window.openBookingEditModal = function(bookingId) {
-            const modal = document.getElementById('admin-booking-modal');
-            const b = State.allBookings.find(bk => bk.id === bookingId);
-            
-            if (b) {
-                document.getElementById('edit-booking-id').value = b.id;
-                document.getElementById('edit-bk-name').value = b.paxName;
-                document.getElementById('edit-bk-email').value = b.email;
-                document.getElementById('edit-bk-status').value = b.status || 'Confirmed';
-                modal.classList.add('open');
-            }
-        }
-
-        window.handleBookingSave = async function(e) {
-            e.preventDefault();
-            const id = document.getElementById('edit-booking-id').value;
-            const status = document.getElementById('edit-bk-status').value;
-            const updatedData = {
-                paxName: document.getElementById('edit-bk-name').value,
-                email: document.getElementById('edit-bk-email').value,
-                status: status
-            };
-
-            try {
-                // Update Public record
-                const bookingRef = doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id);
-                await updateDoc(bookingRef, updatedData);
-                
-                showToast('Booking Updated', 'success');
-                document.getElementById('admin-booking-modal').classList.remove('open');
-            } catch (error) {
-                console.error("Error updating booking:", error);
-                showToast("Update failed", "error");
-            }
         }
 
         window.openAdminModal = function(flightId = null) {
@@ -1983,10 +1693,7 @@
         window.cancelBooking = async function(firebaseId) {
             if(confirm('Cancel this booking?')) {
                 try {
-                    // Note: We are deleting from public list for admin
-                    // Ideally we should also delete from user private list, but client-side rules prevent cross-user deletion
-                    // This will hide it from Admin view at least
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', firebaseId));
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'bookings', firebaseId));
                     showToast('Booking Cancelled', 'info');
                 } catch (error) {
                     console.error("Error cancelling booking: ", error);
