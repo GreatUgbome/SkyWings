@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -53,11 +56,18 @@
         }
         /* Print Optimization */
         @media print {
-            @page { margin: 0; size: auto; }
+            @page { margin: 0.5cm; size: auto; }
             body { background: white; color: black; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             .page-break { page-break-after: always; }
+            
+            /* Reset Layout for Print */
+            nav, footer { display: none; }
+            main { padding: 0; margin: 0; }
+            .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            #boarding-pass-render { transform: scale(1); margin-top: 20px; }
+            .bp-card { border: 2px solid #000; box-shadow: none; }
         }
         .print-only { display: none; }
         
@@ -109,12 +119,51 @@
         .dark .timeline-item { border-left-color: #334155; }
         .dark .timeline-dot { background: #334155; border-color: #0f172a; }
         .dark .timeline-dot.active { background: #0ea5e9; }
+
+        /* Map Styles */
+        .leaflet-container { background: #0f172a; font-family: 'Inter', sans-serif; }
+        .plane-icon { transition: all 1s linear; }
     </style>
 </head>
 <body class="bg-brand-background dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans antialiased min-h-screen flex flex-col transition-colors duration-300">
 
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
+
+    <!-- Chat Widget -->
+    <div class="fixed bottom-6 right-6 z-50 no-print flex flex-col items-end gap-4">
+        <!-- Chat Window -->
+        <div id="chat-window" class="hidden bg-white dark:bg-slate-800 w-80 h-96 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden transition-all transform origin-bottom-right">
+            <div class="bg-brand-primary p-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center"><i class="fas fa-headset"></i></div>
+                    <div>
+                        <h4 class="font-bold text-sm">SkyWings Support</h4>
+                        <p class="text-xs text-sky-100">Typically replies instantly</p>
+                    </div>
+                </div>
+                <button onclick="toggleChat()" class="text-white hover:bg-white/20 p-1 rounded"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="chat-messages" class="flex-grow p-4 overflow-y-auto space-y-3 bg-slate-50 dark:bg-slate-900">
+                <div class="flex gap-2">
+                    <div class="w-6 h-6 rounded-full bg-brand-primary flex-shrink-0"></div>
+                    <div class="bg-white dark:bg-slate-800 p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm text-sm border border-slate-100 dark:border-slate-700">
+                        Hello! How can I help you with your flight today?
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <form id="chat-form" class="flex gap-2" onsubmit="handleChat(event)">
+                    <input type="text" id="chat-input" placeholder="Type a message..." class="flex-grow text-sm bg-slate-100 dark:bg-slate-900 border-0 rounded-lg px-3 focus:ring-1 focus:ring-brand-primary outline-none">
+                    <button type="submit" class="bg-brand-primary text-white p-2 rounded-lg hover:bg-sky-600"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        <!-- Toggle Button -->
+        <button onclick="toggleChat()" class="w-14 h-14 bg-brand-primary hover:bg-sky-600 text-white rounded-full shadow-lg shadow-sky-500/30 flex items-center justify-center text-2xl transition-transform hover:scale-110">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+    </div>
 
     <!-- Navigation -->
     <nav class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 no-print transition-colors duration-300">
@@ -164,7 +213,7 @@
     </div>
 
     <!-- Main Content -->
-    <main class="flex-grow no-print">
+    <main class="flex-grow">
         
         <!-- VIEW: HOME / SEARCH -->
         <div id="view-home" class="view-section animate-fade-in relative">
@@ -457,12 +506,12 @@
             </div>
         </div>
 
-        <!-- VIEW: TRACKING (UPGRADED) -->
+        <!-- VIEW: TRACKING (DRADSTICALLY UPGRADED) -->
         <div id="view-tracking" class="view-section hidden container mx-auto px-4 py-12">
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-12">
                     <h2 class="text-3xl font-bold text-brand-dark dark:text-white mb-4">Live Flight Tracker</h2>
-                    <p class="text-slate-500 mb-8">Real-time telemetry and status updates.</p>
+                    <p class="text-slate-500 mb-8">Real-time telemetry and global position tracking.</p>
                     <div class="flex gap-2 max-w-xl mx-auto">
                         <input type="text" id="track-input" class="flex-grow p-4 border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-lg font-mono uppercase placeholder-sans" placeholder="Ref or Flight # (e.g. SKW101)">
                         <button id="track-flight-btn" class="bg-brand-dark text-white px-8 rounded-xl font-bold hover:bg-slate-800 transition-colors">Track</button>
@@ -552,6 +601,19 @@
                 </div>
                 <h2 class="text-3xl font-bold text-brand-dark mb-2">Booking Confirmed!</h2>
             <p class="text-slate-500 mb-8">Your e-ticket has been generated. Reference: <span id="booking-ref" class="font-mono font-bold text-brand-primary"></span>. Please save it for your records.</p>
+                
+                <!-- Share Link Section -->
+                <div class="mb-12 max-w-lg mx-auto bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2 text-left">Direct Tracking Link</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-link" class="flex-grow p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-600 dark:text-slate-300 focus:outline-none font-mono" readonly onclick="this.select()">
+                        <button onclick="copyShareLink()" class="bg-brand-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-sky-600 transition-colors shadow-sm whitespace-nowrap flex items-center gap-2">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2 text-left">Send this link to the client to view flight status in one click.</p>
+                </div>
+
                 <div class="flex justify-center gap-4 mb-12">
                     <button onclick="window.print()" class="bg-brand-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2">
                         <i class="fas fa-print"></i> Print Boarding Pass
@@ -721,8 +783,70 @@
         </div>
     </div>
 
-    <footer class="bg-white border-t border-slate-200 mt-auto py-8 no-print">
-        <div class="container text-center text-sm text-slate-500">&copy; 2025 SkyWings Airlines. All rights reserved.</div>
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-auto pt-16 pb-8 no-print transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <!-- Brand -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-brand-primary text-white p-2 rounded-lg shadow-sm">
+                            <i class="fas fa-plane-departure transform -rotate-45"></i>
+                        </div>
+                        <span class="font-bold text-xl text-brand-dark dark:text-white">SkyWings</span>
+                    </div>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Connecting the world with premium travel experiences. Your journey begins with us.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-brand-primary hover:text-white transition-all"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-brand-primary hover:text-white transition-all"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-brand-primary hover:text-white transition-all"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-brand-primary hover:text-white transition-all"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-bold text-brand-dark dark:text-white mb-6">Company</h4>
+                    <ul class="space-y-3 text-sm text-slate-500">
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">Press & Media</a></li>
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">Sustainability</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="font-bold text-brand-dark dark:text-white mb-6">Support</h4>
+                    <ul class="space-y-3 text-sm text-slate-500">
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">Travel Alerts</a></li>
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">Baggage Info</a></li>
+                        <li><a href="#" class="hover:text-brand-primary transition-colors">Accessibility</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div>
+                    <h4 class="font-bold text-brand-dark dark:text-white mb-6">Stay Updated</h4>
+                    <p class="text-slate-500 text-sm mb-4">Subscribe for exclusive offers and travel inspiration.</p>
+                    <div class="flex gap-2">
+                        <input type="email" placeholder="Email address" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm rounded-lg px-4 py-2 w-full focus:outline-none focus:border-brand-primary transition-colors dark:text-white">
+                        <button class="bg-brand-primary text-white px-4 py-2 rounded-lg hover:bg-sky-600 transition-colors"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-slate-400 text-sm">&copy; 2025 SkyWings Airlines. All rights reserved.</p>
+                <div class="flex gap-6 text-sm text-slate-400">
+                    <a href="#" class="hover:text-brand-dark dark:hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-brand-dark dark:hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-brand-dark dark:hover:text-white transition-colors">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <datalist id="airports">
@@ -731,6 +855,7 @@
         <option value="Lagos (LOS)"><option value="Abuja (ABV)"><option value="Accra (ACC)"><option value="Johannesburg (JNB)">
     </datalist>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -745,7 +870,16 @@
             selectedFlight: null,
             activeSeats: [],
             lastSearchResults: [],
-            isAdminLoggedIn: false
+            isAdminLoggedIn: false,
+            autoTrackRef: null,
+            map: null,
+            planeMarker: null
+        };
+
+        const airportCoords = {
+            'JFK': [40.6413, -73.7781], 'LHR': [51.4700, -0.4543], 'CDG': [49.0097, 2.5479], 'NRT': [35.7719, 140.3929],
+            'DXB': [25.2532, 55.3657], 'LAX': [33.9416, -118.4085], 'SIN': [1.3644, 103.9915], 'SYD': [-33.9399, 151.1753],
+            'LOS': [6.5774, 3.3210], 'ABV': [9.0068, 7.2631], 'ACC': [5.6051, -0.1668], 'JNB': [-26.1367, 28.2411]
         };
 
         let firebaseConfig;
@@ -782,6 +916,42 @@
                 const icon = document.querySelector('#theme-toggle i');
                 if(icon) icon.className = 'fas fa-sun';
             }
+        };
+
+        // --- CHAT WIDGET ---
+        window.toggleChat = () => {
+            document.getElementById('chat-window').classList.toggle('hidden');
+        };
+
+        window.handleChat = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+
+            const chat = document.getElementById('chat-messages');
+            
+            // User Msg
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex gap-2 flex-row-reverse';
+            userDiv.innerHTML = `<div class="bg-brand-primary text-white p-3 rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-sm text-sm">${msg}</div>`;
+            chat.appendChild(userDiv);
+            
+            input.value = '';
+            chat.scrollTop = chat.scrollHeight;
+
+            // Simulated AI Response
+            setTimeout(() => {
+                const botDiv = document.createElement('div');
+                botDiv.className = 'flex gap-2';
+                botDiv.innerHTML = `
+                    <div class="w-6 h-6 rounded-full bg-brand-primary flex-shrink-0 flex items-center justify-center text-xs text-white"><i class="fas fa-headset"></i></div>
+                    <div class="bg-white dark:bg-slate-800 p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm text-sm border border-slate-100 dark:border-slate-700 dark:text-slate-200">
+                        Thank you for reaching out. An agent will be with you shortly. In the meantime, you can track your flight using the reference number.
+                    </div>`;
+                chat.appendChild(botDiv);
+                chat.scrollTop = chat.scrollHeight;
+            }, 1000);
         };
 
         // --- CORE FUNCTIONS (Defined before usage) ---
@@ -826,6 +996,16 @@
             const from = document.getElementById('from');
             const to = document.getElementById('to');
             if(from && to) [from.value, to.value] = [to.value, from.value];
+        };
+
+        // Copy Link Function
+        window.copyShareLink = () => {
+            const copyText = document.getElementById("share-link");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            navigator.clipboard.writeText(copyText.value).then(() => {
+                window.showToast("Link Copied!", "success");
+            });
         };
 
         // Alias for function name mismatch
@@ -1128,6 +1308,12 @@
                 await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), booking);
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), booking);
                 document.getElementById('booking-ref').innerText = ref;
+                
+                // Generate Share Link
+                const baseUrl = window.location.href.split('?')[0];
+                const trackingUrl = `${baseUrl}?track=${ref}`;
+                document.getElementById('share-link').value = trackingUrl;
+
                 renderTicket(booking);
                 window.navigateTo('confirmation');
                 window.showToast("Booking Successful!", "success");
@@ -1163,13 +1349,63 @@
         }
 
         /* --- TRACK & MANAGE --- */
+        window.initMap = (fromCode, toCode) => {
+            const from = airportCoords[fromCode] || [40.7128, -74.0060]; // Default NYC
+            const to = airportCoords[toCode] || [51.5074, -0.1278]; // Default London
+
+            const container = document.getElementById('map-container');
+            if(!container) return;
+            
+            // Clean up previous
+            if(State.map) {
+                State.map.remove();
+                State.map = null;
+            }
+
+            container.innerHTML = '<div id="map" class="w-full h-full z-0"></div>';
+            
+            const center = [(from[0] + to[0])/2, (from[1] + to[1])/2];
+            State.map = L.map('map', {
+                center: center,
+                zoom: 2,
+                zoomControl: false,
+                attributionControl: false,
+                scrollWheelZoom: false,
+                dragging: false
+            });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(State.map);
+
+            // Path
+            const latlngs = [from, to];
+            const polyline = L.polyline(latlngs, {color: '#0ea5e9', weight: 3, opacity: 0.8, dashArray: '10, 10'}).addTo(State.map);
+            State.map.fitBounds(polyline.getBounds(), {padding: [50, 50]});
+
+            // Markers
+            const icon = L.divIcon({className: 'bg-transparent', html: '<div class="w-3 h-3 bg-white rounded-full shadow-[0_0_10px_#0ea5e9]"></div>'});
+            L.marker(from, {icon}).addTo(State.map);
+            L.marker(to, {icon}).addTo(State.map);
+
+            // Plane (Midpoint approx)
+            const planeIcon = L.divIcon({
+                className: 'plane-icon',
+                html: '<i class="fas fa-plane text-brand-primary text-2xl transform rotate-45 drop-shadow-[0_0_10px_rgba(14,165,233,0.8)]"></i>',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+            L.marker(center, {icon: planeIcon}).addTo(State.map);
+        }
+
         window.handleTrack = () => {
             const input = document.getElementById('track-input').value.trim().toUpperCase();
             const resDiv = document.getElementById('tracking-result-container');
             if(!input) return window.showToast("Enter reference or flight number", "error");
             
             resDiv.classList.remove('hidden');
-            resDiv.innerHTML = '<div class="py-12 text-center"><i class="fas fa-circle-notch fa-spin text-3xl text-brand-primary"></i><p class="mt-4 text-slate-500">Acquiring satellite data...</p></div>';
+            resDiv.innerHTML = '<div class="py-12 text-center"><i class="fas fa-circle-notch fa-spin text-3xl text-brand-primary"></i><p class="mt-4 text-slate-500">Acquiring global satellite link...</p></div>';
 
             setTimeout(() => {
                 const booking = State.allBookings.find(b => b.ref == input) || State.bookings.find(b => b.ref == input);
@@ -1188,17 +1424,19 @@
                 const speed = Math.floor(Math.random() * (600 - 450) + 450);
                 const remaining = flight.dur || "3h 20m";
                 
-                // New Fields with Fallbacks
+                // Fields
                 const gate = flight.gate || "TBD";
                 const terminal = flight.terminal || "TBD";
                 const baggage = flight.baggage || "TBD";
                 const tail = flight.tail || `N${Math.floor(Math.random()*900+100)}SW`;
                 const progress = flight.progress || "Scheduled";
 
+                const fromCode = flight.from.match(/\(([^)]+)\)/)?.[1] || 'JFK';
+                const toCode = flight.to.match(/\(([^)]+)\)/)?.[1] || 'LHR';
+
                 // Timeline Logic
                 const stages = ['Scheduled', 'Check-in', 'Boarding', 'Taxiing', 'Take-off', 'In Air', 'Landed', 'Arrived'];
                 const currentIdx = stages.indexOf(progress);
-                
                 const isCheckin = currentIdx >= stages.indexOf('Check-in');
                 const isBoarding = currentIdx >= stages.indexOf('Boarding');
                 const isTakeoff = currentIdx >= stages.indexOf('Take-off');
@@ -1243,42 +1481,34 @@
                         </div>
 
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <!-- Live Telemetry -->
-                            <div class="lg:col-span-2 bg-slate-900 text-white rounded-2xl p-6 shadow-lg flex flex-col justify-between relative overflow-hidden">
-                                <!-- Map Placeholder -->
-                                <div class="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')] bg-cover bg-center"></div>
-                                <div class="relative z-10 mb-8">
-                                    <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Live Telemetry</h4>
-                                    <div class="grid grid-cols-3 gap-4">
-                                        <div class="bg-white/10 backdrop-blur-sm p-3 rounded-lg">
-                                            <div class="text-xs text-slate-300 mb-1">ALTITUDE</div>
-                                            <div class="text-xl font-mono font-bold text-sky-400">${altitude} <span class="text-xs">FT</span></div>
-                                        </div>
-                                        <div class="bg-white/10 backdrop-blur-sm p-3 rounded-lg">
-                                            <div class="text-xs text-slate-300 mb-1">GROUND SPEED</div>
-                                            <div class="text-xl font-mono font-bold text-sky-400">${speed} <span class="text-xs">KTS</span></div>
-                                        </div>
-                                        <div class="bg-white/10 backdrop-blur-sm p-3 rounded-lg">
-                                            <div class="text-xs text-slate-300 mb-1">TIME REMAINING</div>
-                                            <div class="text-xl font-mono font-bold text-sky-400">${remaining}</div>
-                                        </div>
+                            <!-- Live Map (REPLACED STATIC IMAGE) -->
+                            <div class="lg:col-span-2 bg-slate-900 text-white rounded-2xl shadow-lg relative overflow-hidden h-[400px] border border-slate-800">
+                                <div id="map-container" class="absolute inset-0 z-0"></div>
+                                
+                                <!-- Floating Stats Overlay -->
+                                <div class="absolute top-4 left-4 right-4 z-10 grid grid-cols-3 gap-2">
+                                    <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700">
+                                        <div class="text-[10px] text-slate-400 mb-1 tracking-wider">ALTITUDE</div>
+                                        <div class="text-lg font-mono font-bold text-sky-400">${altitude} <span class="text-xs">FT</span></div>
+                                    </div>
+                                    <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700">
+                                        <div class="text-[10px] text-slate-400 mb-1 tracking-wider">SPEED</div>
+                                        <div class="text-lg font-mono font-bold text-sky-400">${speed} <span class="text-xs">KTS</span></div>
+                                    </div>
+                                    <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700">
+                                        <div class="text-[10px] text-slate-400 mb-1 tracking-wider">REMAINING</div>
+                                        <div class="text-lg font-mono font-bold text-sky-400">${remaining}</div>
                                     </div>
                                 </div>
-                                <div class="relative z-10">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                                            <i class="fas fa-plane-up text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <div class="font-bold">Boeing 787-9 Dreamliner</div>
-                                            <div class="text-xs text-slate-400 font-mono">REG: ${tail}</div>
-                                        </div>
-                                    </div>
+
+                                <div class="absolute bottom-4 left-4 z-10 flex items-center gap-3 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-full border border-slate-700">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <div class="text-xs font-mono text-slate-300">LIVE SATELLITE FEED • ${tail}</div>
                                 </div>
                             </div>
 
                             <!-- Timeline -->
-                            <div class="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-2xl p-6 shadow-lg">
+                            <div class="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-2xl p-6 shadow-lg h-[400px] overflow-y-auto">
                                 <h4 class="font-bold text-brand-dark dark:text-white mb-6">Flight Progress</h4>
                                 <div class="pl-2">
                                     <div class="timeline-item">
@@ -1311,6 +1541,10 @@
                             </div>
                         </div>
                     </div>`;
+                
+                // Initialize Map after DOM update
+                setTimeout(() => window.initMap(fromCode, toCode), 100);
+
             }, 1200);
         };
 
@@ -1424,6 +1658,18 @@
             window.showToast("Logged out", "info");
         };
 
+        // Check for URL Params on Load
+        const checkUrlParams = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const trackRef = urlParams.get('track');
+            if (trackRef) {
+                State.autoTrackRef = trackRef;
+                navigateTo('tracking');
+                document.getElementById('track-input').value = trackRef;
+                // Note: Actual tracking triggers in startDataSync when data is ready
+            }
+        };
+
         /* --- INIT --- */
         function setupEventListeners() {
             // Nav
@@ -1534,6 +1780,16 @@
                 snap.forEach(d => list.push({id: d.id, ...d.data()}));
                 State.flights = list;
                 if(document.getElementById('view-admin').classList.contains('active')) window.renderAdminPanel();
+                
+                // Try auto-track if ref exists and we have data
+                if(State.autoTrackRef) {
+                    setTimeout(() => { 
+                       if(State.autoTrackRef) {
+                           window.handleTrack();
+                           // We don't clear it immediately in case bookings load slightly later than flights
+                       }
+                    }, 500); 
+                }
             });
 
             onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), (snap) => {
@@ -1549,6 +1805,16 @@
                 snap.forEach(d => list.push({id: d.id, ...d.data()}));
                 State.allBookings = list;
                 if(document.getElementById('view-admin').classList.contains('active')) window.renderAdminPanel();
+                
+                // Retry auto-track when bookings load (incase it's a booking ref)
+                if(State.autoTrackRef) {
+                    setTimeout(() => { 
+                       if(State.autoTrackRef) {
+                           window.handleTrack();
+                           State.autoTrackRef = null; // Clear to prevent loops
+                       }
+                    }, 500); 
+                }
             });
         };
 
@@ -1575,6 +1841,7 @@
                     initTheme();
                     setupEventListeners();
                     renderRecentSearches();
+                    checkUrlParams(); // Check for ?track= link
                     
                     // Init Defaults
                     const today = new Date().toISOString().split('T')[0];
