@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyWings - Book, Track & Fly Anywhere</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>SkyWings - Premium Flight Booking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #4361ee;
-            --primary-dark: #3a0ca3;
-            --secondary: #4cc9f0;
-            --accent: #f72585;
-            --bg-body: #f8f9fa;
+            --primary: #0f172a; /* Sophisticated Dark Blue */
+            --primary-light: #334155;
+            --accent: #3b82f6; /* Trustworthy Blue */
+            --bg-body: #f1f5f9;
             --bg-card: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             --radius: 12px;
             --success: #10b981;
             --danger: #ef4444;
@@ -32,96 +31,103 @@
             --text-muted: #94a3b8;
             --border: #334155;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            --primary: #3b82f6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg-body); color: var(--text-main); transition: background 0.3s, color 0.3s; line-height: 1.6; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg-body); color: var(--text-main); transition: background 0.3s, color 0.3s; line-height: 1.6; font-size: 15px; }
 
         /* Utilities */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         .hidden { display: none !important; }
-        .text-primary { color: var(--primary); }
+        .text-primary { color: var(--accent); }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .mt-2 { margin-top: 1rem; }
         .mb-2 { margin-bottom: 1rem; }
         .flex { display: flex; gap: 10px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .w-full { width: 100%; }
         
         /* Navbar */
-        .navbar { background: var(--bg-card); height: 70px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow); }
+        .navbar { background: var(--bg-card); height: 70px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow); backdrop-filter: blur(10px); }
         .nav-container { height: 100%; display: flex; justify-content: space-between; align-items: center; }
         .nav-logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        [data-theme="dark"] .nav-logo { color: white; }
         .nav-right { display: flex; align-items: center; gap: 20px; }
         .nav-menu { display: flex; list-style: none; gap: 25px; }
-        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 500; transition: 0.3s; cursor: pointer; }
-        .nav-link:hover, .nav-link.active { color: var(--primary); }
-        /* Admin Link Style */
-        .nav-link[data-section="admin"] { color: var(--accent); font-weight: 600; }
-
-        #theme-toggle { background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.2rem; }
+        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 500; transition: 0.3s; cursor: pointer; padding: 5px 10px; border-radius: 8px; }
+        .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+        
+        #theme-toggle { background: none; border: none; color: var(--text-main); cursor: pointer; font-size: 1.2rem; transition: 0.3s; }
+        #theme-toggle:hover { transform: rotate(15deg); }
 
         /* Hero */
-        .hero { height: 60vh; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=80') center/cover; }
-        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(67, 97, 238, 0.8), rgba(58, 12, 163, 0.8)); }
-        .hero-content { position: relative; z-index: 2; max-width: 800px; padding: 20px; }
-        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; line-height: 1.2; }
-        .hero span { color: var(--secondary); }
+        .hero { height: 70vh; position: relative; display: flex; align-items: center; justify-content: center; text-align: center; color: white; background: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=80') center/cover; }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(59, 130, 246, 0.8)); }
+        .hero-content { position: relative; z-index: 2; max-width: 800px; padding: 20px; animation: slideUp 0.8s ease-out; }
+        .hero h1 { font-size: 4rem; margin-bottom: 20px; line-height: 1.1; font-weight: 700; letter-spacing: -1px; }
+        .hero span { color: #60a5fa; display: block; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 30px; font-weight: 300; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Buttons */
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4); }
-        .btn-secondary { background: transparent; border: 2px solid var(--primary); color: var(--primary); padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: 600; }
-        .btn-secondary:hover { background: rgba(67, 97, 238, 0.1); }
-        .btn-danger { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; }
-        .btn-edit { background: var(--warning); color: white; border: none; padding: 8px 15px; border-radius: 50px; cursor: pointer; margin-right: 5px; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 14px 30px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3); }
+        .btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 6px 10px rgba(59, 130, 246, 0.4); }
+        .btn-secondary { background: transparent; border: 2px solid var(--accent); color: var(--accent); padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .btn-secondary:hover { background: var(--accent); color: white; }
+        .btn-danger { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+        .btn-edit { background: var(--warning); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; margin-right: 5px; }
         .btn-block { width: 100%; }
-        .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
 
         /* Search Card */
-        .search-card { background: var(--bg-card); padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow-lg); margin-top: -50px; position: relative; z-index: 10; border: 1px solid var(--border); }
-        .trip-type-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .trip-tab { background: none; border: none; padding: 8px 16px; cursor: pointer; color: var(--text-muted); font-weight: 600; border-radius: 20px; transition: 0.3s; }
-        .trip-tab.active { background: rgba(67, 97, 238, 0.1); color: var(--primary); }
+        .search-card { background: var(--bg-card); padding: 40px; border-radius: var(--radius); box-shadow: var(--shadow-lg); margin-top: -80px; position: relative; z-index: 10; border: 1px solid var(--border); transition: 0.3s; }
+        .trip-type-tabs { display: flex; gap: 5px; margin-bottom: 25px; background: var(--bg-body); padding: 5px; border-radius: 8px; width: fit-content; }
+        .trip-tab { background: none; border: none; padding: 8px 20px; cursor: pointer; color: var(--text-muted); font-weight: 500; border-radius: 6px; transition: 0.3s; }
+        .trip-tab.active { background: var(--bg-card); color: var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         .search-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end; margin-bottom: 25px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; }
-        .input-wrapper { position: relative; display: flex; align-items: center; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 10px 15px; transition: 0.3s; }
-        .input-wrapper:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
-        .input-wrapper i { color: var(--text-muted); margin-right: 10px; }
-        .input-wrapper input, .input-wrapper select { border: none; background: transparent; width: 100%; outline: none; color: var(--text-main); font-size: 1rem; }
-        #swap-airports { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; color: var(--primary); align-self: center; justify-self: center; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        #swap-airports:hover { background: var(--bg-body); transform: rotate(180deg); }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; background: var(--bg-body); border: 1px solid var(--border); border-radius: 8px; padding: 12px 15px; transition: 0.3s; }
+        .input-wrapper:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        .input-wrapper i { color: var(--text-muted); margin-right: 12px; }
+        .input-wrapper input, .input-wrapper select { border: none; background: transparent; width: 100%; outline: none; color: var(--text-main); font-size: 1rem; font-weight: 500; }
+        #swap-airports { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; color: var(--accent); align-self: center; justify-self: center; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        #swap-airports:hover { background: var(--accent); color: white; transform: rotate(180deg); }
 
         /* Dropdown */
-        .passenger-dropdown-trigger { cursor: pointer; padding: 10px 15px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 10px; background: var(--bg-body); user-select: none; }
-        .passenger-dropdown { position: absolute; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-lg); border-radius: 8px; padding: 15px; width: 250px; margin-top: 10px; z-index: 50; }
+        .passenger-dropdown-trigger { cursor: pointer; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; gap: 10px; background: var(--bg-body); user-select: none; }
+        .passenger-dropdown { position: absolute; background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-lg); border-radius: 8px; padding: 20px; width: 280px; margin-top: 10px; z-index: 50; }
         .passenger-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .counter { display: flex; align-items: center; gap: 10px; }
-        .passenger-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-body); cursor: pointer; color: var(--primary); display: flex; align-items: center; justify-content: center; }
-
+        .counter { display: flex; align-items: center; gap: 15px; }
+        .passenger-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-body); cursor: pointer; color: var(--accent); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        
         /* Sections */
-        .section { display: none; padding: 40px 0; min-height: 60vh; }
-        .section.active { display: block; animation: fadeIn 0.4s ease; }
+        .section { display: none; padding: 60px 0; min-height: 60vh; animation: fadeIn 0.4s ease; }
+        .section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Flight Results & Cards */
-        .flight-card { background: var(--bg-card); border-radius: var(--radius); padding: 25px; margin-bottom: 20px; border: 1px solid var(--border); display: grid; grid-template-columns: 1fr 2fr 1fr; align-items: center; gap: 20px; transition: transform 0.2s; }
-        .flight-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        /* Flight Cards */
+        .flight-card { background: var(--bg-card); border-radius: var(--radius); padding: 25px; margin-bottom: 20px; border: 1px solid var(--border); display: grid; grid-template-columns: 1.5fr 2fr 1fr; align-items: center; gap: 30px; transition: transform 0.2s, box-shadow 0.2s; }
+        .flight-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
         .flight-route { display: flex; justify-content: space-between; align-items: center; text-align: center; }
-        .flight-line { flex: 1; height: 2px; background: var(--border); margin: 0 15px; position: relative; }
-        .flight-line::after { content: '✈'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); color: var(--primary); background: var(--bg-card); padding: 0 5px; font-size: 1.2rem; }
+        .flight-line { flex: 1; height: 1px; background: var(--border); margin: 0 20px; position: relative; }
+        .flight-line::after { content: '✈'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); color: var(--accent); background: var(--bg-card); padding: 0 10px; font-size: 1.2rem; }
+        .time-big { font-size: 1.5rem; font-weight: 700; line-height: 1; color: var(--text-main); }
+        .city-small { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
 
-        /* Admin Specific Styles */
-        .admin-dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--bg-card); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; align-items: center; gap: 20px; }
-        .stat-icon { width: 50px; height: 50px; border-radius: 50%; background: rgba(67, 97, 238, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .admin-table-container { overflow-x: auto; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); }
-        .admin-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        .admin-table th, .admin-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
-        .admin-table th { background: var(--bg-body); font-weight: 600; color: var(--text-muted); }
-        .admin-table tr:last-child td { border-bottom: none; }
-        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
+        /* Admin Dashboard */
+        .admin-dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-card); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); display: flex; align-items: center; gap: 25px; }
+        .stat-icon { width: 60px; height: 60px; border-radius: 12px; background: rgba(59, 130, 246, 0.1); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+        .admin-table-container { overflow-x: auto; background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+        .admin-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        .admin-table th, .admin-table td { padding: 15px 25px; text-align: left; border-bottom: 1px solid var(--border); }
+        .admin-table th { background: var(--bg-body); font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; }
+        
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .status-ontime { background: #dcfce7; color: #166534; }
         .status-delayed { background: #fef9c3; color: #854d0e; }
         .status-cancelled { background: #fee2e2; color: #991b1b; }
@@ -129,284 +135,152 @@
 
         /* Booking Layout */
         .booking-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; margin-top: 30px; }
-        .step-card { background: var(--bg-card); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; }
-        .step-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .step-number { width: 30px; height: 30px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        
+        .step-card { background: var(--bg-card); padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 20px; box-shadow: var(--shadow); }
+        .step-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .step-number { width: 30px; height: 30px; background: var(--accent); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-body); color: var(--text-main); }
         
-        .payment-selector { display: flex; gap: 15px; margin-bottom: 20px; }
-        .payment-option { flex: 1; border: 2px solid var(--border); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .payment-option.active { border-color: var(--primary); background: rgba(67, 97, 238, 0.05); color: var(--primary); font-weight: 600; }
+        .payment-selector { display: flex; gap: 20px; margin-bottom: 25px; }
+        .payment-option { flex: 1; border: 2px solid var(--border); padding: 20px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .payment-option i { font-size: 1.5rem; }
+        .payment-option.active { border-color: var(--accent); background: rgba(59, 130, 246, 0.05); color: var(--accent); }
         
-        .price-summary-card { background: var(--bg-card); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); position: sticky; top: 100px; }
-        .price-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
-        .price-line.total { border-top: 1px solid var(--border); padding-top: 10px; font-weight: 700; font-size: 1.2rem; color: var(--primary); }
+        .price-summary-card { background: var(--bg-card); padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); position: sticky; top: 100px; box-shadow: var(--shadow); }
+        .price-line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-muted); }
+        .price-line.total { border-top: 2px dashed var(--border); padding-top: 15px; margin-top: 15px; font-weight: 700; font-size: 1.4rem; color: var(--accent); }
 
         /* Seat Map Modal */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
         .modal.open { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--bg-card); padding: 30px; border-radius: var(--radius); max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; transform: translateY(20px); transition: 0.3s; }
-        .modal.open .modal-content { transform: translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
-        .close-modal { cursor: pointer; font-size: 1.5rem; transition: 0.2s; }
+        .modal-content { background: var(--bg-card); padding: 40px; border-radius: 20px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; transform: scale(0.9); transition: 0.3s; box-shadow: var(--shadow-lg); }
+        .modal.open .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center; }
+        .close-modal { cursor: pointer; font-size: 1.5rem; transition: 0.2s; color: var(--text-muted); }
         .close-modal:hover { color: var(--danger); }
         
-        .seat-legend { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; font-size: 0.9rem; }
-        .seat-dot { width: 15px; height: 15px; border-radius: 4px; display: inline-block; margin-right: 5px; vertical-align: middle; }
-        .seat-dot.available { background: var(--border); }
-        .seat-dot.selected { background: var(--success); }
-        .seat-dot.occupied { background: var(--border); opacity: 0.5; position: relative; }
-
-        .fuselage { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 350px; margin: 0 auto; background: var(--bg-body); padding: 40px 20px 20px; border-radius: 100px 100px 0 0; border: 2px solid var(--border); }
-        .seat-btn { width: 35px; height: 35px; border-radius: 8px; border: none; cursor: pointer; background: var(--border); transition: 0.2s; font-size: 0.8rem; color: var(--text-muted); }
-        .seat-btn:hover:not(:disabled) { background: var(--primary); opacity: 0.7; color: white; }
-        .seat-btn.selected { background: var(--success); color: white; transform: scale(1.1); }
+        .fuselage { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; max-width: 350px; margin: 0 auto; background: var(--bg-body); padding: 50px 25px 30px; border-radius: 150px 150px 0 0; border: 4px solid var(--border); position: relative; }
+        .seat-btn { width: 40px; height: 40px; border-radius: 8px; border: none; cursor: pointer; background: var(--border); transition: 0.2s; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .seat-btn:hover:not(:disabled) { background: var(--accent); opacity: 0.8; color: white; }
+        .seat-btn.selected { background: var(--success); color: white; transform: scale(1.1); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
         .seat-btn:disabled { background: #cbd5e1; cursor: not-allowed; opacity: 0.4; }
-        .aisle { width: 20px; text-align: center; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--text-muted); }
+        .aisle { width: 20px; }
 
-        /* Loader */
-        .loader-container { text-align: center; padding: 50px; }
-        .plane-loader { font-size: 3rem; color: var(--primary); animation: fly 1.5s infinite ease-in-out; display: inline-block; }
-        @keyframes fly { 0% { transform: translateY(0); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0); } }
+        /* Tracking Timeline UI */
+        .tracking-status-card { background: var(--bg-card); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow-lg); border: 1px solid var(--border); text-align: center; }
+        .flight-header { margin-bottom: 30px; }
+        .flight-header h2 { font-size: 2.5rem; color: var(--accent); margin-bottom: 5px; }
+        .flight-header .status-label { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .progress-track { display: flex; justify-content: space-between; position: relative; margin: 40px 0; max-width: 600px; margin-left: auto; margin-right: auto; }
+        .progress-track::before { content: ''; position: absolute; top: 15px; left: 0; width: 100%; height: 4px; background: var(--border); z-index: 0; }
+        .step { position: relative; z-index: 1; text-align: center; flex: 1; }
+        .step-circle { width: 34px; height: 34px; background: var(--bg-card); border: 4px solid var(--border); border-radius: 50%; margin: 0 auto 10px; transition: 0.3s; }
+        .step.active .step-circle { border-color: var(--success); background: var(--success); }
+        .step.active::after { content: ''; position: absolute; top: 15px; left: -50%; width: 100%; height: 4px; background: var(--success); z-index: -1; }
+        .step:first-child::after { display: none; }
+        .step-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+        .step.active .step-label { color: var(--text-main); }
 
-        /* Toast */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: var(--bg-card); color: var(--text-main); padding: 15px 25px; border-radius: 8px; box-shadow: var(--shadow-lg); border-left: 5px solid var(--primary); animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 10px; min-width: 300px; }
-        .toast.error { border-left-color: var(--danger); }
-        .toast.success { border-left-color: var(--success); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .flight-grid-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; text-align: left; background: var(--bg-body); padding: 20px; border-radius: 12px; margin-top: 30px; }
+        .detail-item span { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+        .detail-item strong { font-size: 1.1rem; color: var(--text-main); }
 
-        /* Boarding Pass Styles - Modern Professional Look */
+        /* --- PROFESSIONAL BOARDING PASS (PRINT & SCREEN) --- */
+        /* Inspired by Wallet Passes and Airline Tickets */
         .boarding-pass-card {
             background: #fff;
-            color: #1e293b;
-            border-radius: 16px;
+            color: #000;
+            width: 100%;
+            max-width: 800px;
             margin: 30px auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            position: relative;
+            border-radius: 0;
             overflow: hidden;
-            max-width: 700px;
+            display: flex;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            font-family: 'Poppins', sans-serif;
             border: 1px solid #e2e8f0;
         }
 
-        .bp-top {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            padding: 20px 30px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .bp-main-section { flex: 3; padding: 30px; border-right: 2px dashed #cbd5e1; position: relative; }
+        .bp-stub-section { flex: 1; padding: 30px; background: #f8fafc; display: flex; flex-direction: column; justify-content: center; }
+
+        /* Cutout circles for perforations */
+        .bp-main-section::after {
+            content: ''; position: absolute; right: -10px; top: 50%; transform: translateY(-50%);
+            width: 20px; height: 20px; background: var(--bg-body); border-radius: 50%; box-shadow: inset 2px 0 5px rgba(0,0,0,0.05);
         }
 
-        .bp-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .bp-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 15px; }
+        .bp-airline-name { font-size: 1.5rem; font-weight: 800; letter-spacing: -1px; text-transform: uppercase; }
+        .bp-class-badge { font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; font-weight: 700; border: 2px solid #000; padding: 2px 10px; border-radius: 4px; }
+
+        .bp-route-row { display: flex; justify-content: space-between; margin-bottom: 30px; align-items: center; }
+        .bp-city-code { font-size: 4rem; font-weight: 800; line-height: 0.9; }
+        .bp-city-name { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; }
+        .bp-arrow { font-size: 2rem; color: #94a3b8; }
+
+        .bp-info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .bp-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; display: block; margin-bottom: 2px; letter-spacing: 0.5px; }
+        .bp-value { font-size: 1.1rem; font-weight: 700; color: #000; display: block; }
+        .bp-mono { font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
+
+        /* Barcode Area */
+        .bp-barcode-area { 
+            height: 60px; 
+            width: 100%; 
+            background: repeating-linear-gradient(90deg, #000, #000 2px, #fff 2px, #fff 4px, #000 4px, #000 8px); 
+            margin-top: auto; 
+            opacity: 0.8;
         }
 
-        .bp-class {
-            background: rgba(255,255,255,0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .bp-stub-info { margin-bottom: 20px; }
+        .bp-stub-code { font-size: 2rem; font-weight: 800; }
 
-        .bp-main {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 30px;
-        }
-
-        .bp-route {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .bp-city h2 {
-            font-size: 3rem;
-            line-height: 1;
-            margin-bottom: 5px;
-            color: var(--primary);
-        }
-
-        .bp-city p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .bp-plane-icon {
-            color: var(--border);
-            font-size: 1.5rem;
-            transform: rotate(90deg);
-        }
-
-        .bp-details-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .bp-item label {
-            display: block;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-            letter-spacing: 0.5px;
-        }
-
-        .bp-item strong {
-            display: block;
-            font-size: 1.1rem;
-            color: var(--text-main);
-        }
-
-        .bp-barcode-section {
-            border-left: 2px dashed #e2e8f0;
-            padding-left: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            text-align: center;
-        }
-
-        .bp-qr {
-            width: 120px;
-            height: 120px;
-            background: #1e293b; /* Placeholder for QR */
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.8rem;
-        }
-
-        .bp-footer {
-            background: #f8fafc;
-            padding: 15px 30px;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Cutout circles decoration */
-        .boarding-pass-card::before, .boarding-pass-card::after {
-            content: '';
-            position: absolute;
-            background: var(--bg-body);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            top: 215px; /* Adjust based on layout */
-            z-index: 10;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-        }
-        .boarding-pass-card::before { left: -15px; }
-        .boarding-pass-card::after { right: -15px; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-menu { position: fixed; top: 70px; left: -100%; width: 100%; background: var(--bg-card); flex-direction: column; padding: 20px; transition: 0.3s; box-shadow: var(--shadow); height: calc(100vh - 70px); }
-            .nav-menu.active { left: 0; }
-            .nav-toggle { display: flex; flex-direction: column; gap: 5px; cursor: pointer; }
-            .bar { width: 25px; height: 3px; background: var(--text-main); }
-            .flight-card { grid-template-columns: 1fr; text-align: center; gap: 15px; }
-            .flight-line { display: none; }
-            .booking-layout { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 2.5rem; }
-            .form-grid { grid-template-columns: 1fr; }
-            
-            .boarding-pass-card { margin: 10px; }
-            .bp-main { grid-template-columns: 1fr; gap: 20px; }
-            .bp-barcode-section { border-left: none; border-top: 2px dashed #e2e8f0; padding-left: 0; padding-top: 20px; }
-            .boarding-pass-card::before, .boarding-pass-card::after { display: none; }
-        }
-
-        /* PRINT STYLES - Professional A4 Format */
+        /* PRINT MEDIA QUERY - High Contrast, No Backgrounds */
         @media print {
             @page { margin: 0; size: auto; }
-            body { 
-                background: white; 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact; 
-                margin: 0;
-                padding: 0;
-            }
-            .navbar, .btn-primary, .btn-secondary, .footer, .back-btn, .action-buttons, #toast-container, .hero, .nav-toggle, #theme-toggle {
-                display: none !important;
-            }
+            body { background: #fff; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .navbar, .footer, .btn-primary, .btn-secondary, .back-btn, .action-buttons, #toast-container, .hero, .nav-toggle, #theme-toggle { display: none !important; }
             .section { display: none; }
-            #confirmation { 
-                display: block !important; 
-                position: absolute; 
-                top: 0; 
-                left: 0; 
-                width: 100%; 
-                height: 100%;
-                z-index: 9999;
-                background: white;
-            }
-            .container { 
-                width: 100%; 
-                max-width: 100%; 
-                padding: 0; 
-                margin: 0; 
-                box-shadow: none; 
-            }
-            .step-card { 
-                box-shadow: none; 
-                border: none; 
-                padding: 0; 
-                margin: 0; 
-            }
+            #confirmation { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: white; padding: 0; }
             
-            /* Hide success icon and header text for print */
-            #confirmation h2, #confirmation p, #confirmation .fa-check-circle {
-                display: none;
-            }
+            #confirmation h2, #confirmation p, #confirmation .fa-check-circle { display: none; }
 
+            .boarding-pass-wrapper { display: flex; justify-content: center; align-items: flex-start; height: 100vh; padding-top: 50px; }
+            
             .boarding-pass-card {
                 box-shadow: none;
                 border: 2px solid #000;
-                margin: 50px auto;
-                max-width: 800px;
-                page-break-inside: avoid;
+                margin: 0;
+                width: 100%;
+                max-width: 800px; /* Fits standard paper width */
+                background: white;
+                color: black;
             }
             
-            .bp-top { background: #000 !important; color: #fff !important; }
-            .bp-main { grid-template-columns: 2fr 1fr; }
-            .bp-city h2 { color: #000 !important; }
-            .bp-item label { color: #555 !important; }
-            .bp-item strong { color: #000 !important; }
-            .bp-qr { background: #000 !important; }
+            .bp-main-section { border-right: 2px dashed #000; }
+            .bp-main-section::after { display: none; } /* Remove visual circle for print */
+            .bp-stub-section { background: white; border-left: none; }
             
-            /* Add print footer */
+            .bp-label { color: #555 !important; }
+            .bp-value, .bp-city-code, .bp-airline-name { color: #000 !important; }
+            
+            /* Footer text for print */
             .boarding-pass-wrapper::after {
-                content: "Keep this boarding pass for your records. Please arrive at the gate 30 minutes before departure.";
-                display: block;
-                text-align: center;
-                margin-top: 20px;
-                font-size: 10pt;
-                color: #555;
+                content: "ELECTRONIC TICKET. PLEASE PRESENT VALID ID AT SECURITY.";
+                position: fixed; bottom: 30px; left: 0; width: 100%; text-align: center;
+                font-family: 'Share Tech Mono', monospace; font-size: 10pt;
             }
+        }
+
+        /* Responsive BP */
+        @media (max-width: 768px) {
+            .boarding-pass-card { flex-direction: column; margin: 10px; max-width: 100%; }
+            .bp-main-section { border-right: none; border-bottom: 2px dashed #e2e8f0; padding: 20px; }
+            .bp-stub-section { display: none; } /* Hide stub on mobile */
+            .bp-main-section::after { display: none; }
+            .bp-info-grid { grid-template-columns: repeat(2, 1fr); }
+            .bp-city-code { font-size: 3rem; }
         }
     </style>
 </head>
@@ -452,7 +326,7 @@
                 <div class="hero-overlay"></div>
                 <div class="hero-content">
                     <h1>Explore the World<br><span>Without Limits</span></h1>
-                    <p class="mb-2">Experience premium travel with SkyWings. Best-in-class service to over 200 destinations in US and Abroad.</p>
+                    <p>Experience premium travel with SkyWings. Best-in-class service to over 200 destinations in US and Abroad.</p>
                     <button class="btn-primary" data-section="search">Start Your Journey</button>
                 </div>
             </div>
@@ -724,10 +598,10 @@
                             
                             <div class="payment-selector">
                                 <div class="payment-option active" data-method="card">
-                                    <i class="fas fa-credit-card"></i> Card
+                                    <i class="fas fa-credit-card"></i><br>Card
                                 </div>
                                 <div class="payment-option" data-method="paypal">
-                                    <i class="fab fa-paypal"></i> PayPal
+                                    <i class="fab fa-paypal"></i><br>PayPal
                                 </div>
                             </div>
 
@@ -895,8 +769,8 @@
 
         <!-- Confirmation Section -->
         <section id="confirmation" class="section">
-             <div class="container text-center" style="max-width: 600px;">
-                 <div class="step-card">
+             <div class="container text-center" style="max-width: 800px;">
+                 <div class="step-card" style="background:transparent; box-shadow:none; border:none;">
                      <div style="font-size: 4rem; color: var(--success); margin-bottom: 20px;">
                          <i class="fas fa-check-circle"></i>
                      </div>
@@ -1051,9 +925,14 @@
 
         // Initialize Auth
         const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.warn("Custom token auth failed, falling back to anonymous auth:", error);
                 await signInAnonymously(auth);
             }
         };
@@ -1401,17 +1280,13 @@
                     </div>
                     <div class="flight-route">
                         <div>
-                            <div style="font-size:1.5rem; font-weight:bold;">${f.departure.time}</div>
-                            <small>${f.departure.city.split('(')[0]}</small>
+                            <div class="time-big">${f.departure.time}</div>
+                            <div class="city-small">${f.departure.city.split('(')[0]}</div>
                         </div>
-                        <div class="flight-line">
-                            <div style="position:absolute; top: -20px; width: 100%; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
-                                ${f.duration}
-                            </div>
-                        </div>
+                        <div class="flight-line"></div>
                         <div>
-                            <div style="font-size:1.5rem; font-weight:bold;">${f.arrival.time}</div>
-                            <small>${f.arrival.city.split('(')[0]}</small>
+                            <div class="time-big">${f.arrival.time}</div>
+                            <div class="city-small">${f.arrival.city.split('(')[0]}</div>
                         </div>
                     </div>
                     <div class="text-center">
@@ -1619,83 +1494,82 @@
             // Generate a random gate and terminal for realism
             const gate = 'G' + Math.floor(Math.random() * 20 + 1);
             const terminal = 'T' + Math.floor(Math.random() * 3 + 1);
-            const boardingTime = "07:45 AM"; // Example, could be calculated
-
+            
             document.querySelector('.boarding-pass-wrapper').innerHTML = `
                 <div class="boarding-pass-card">
-                    <div class="bp-top">
-                        <div class="bp-logo">
-                            <i class="fas fa-plane-departure"></i>
-                            <span>SkyWings</span>
+                    <div class="bp-main-section">
+                        <div class="bp-header-row">
+                            <div class="bp-airline-name">SkyWings Airlines</div>
+                            <div class="bp-class-badge">ECONOMY</div>
                         </div>
-                        <div class="bp-class">
-                            Economy Class
-                        </div>
-                    </div>
-                    <div class="bp-main">
-                        <div class="bp-info">
-                            <div class="bp-route">
-                                <div class="bp-city text-left">
-                                    <h2>${booking.flight.from.substring(0,3).toUpperCase()}</h2>
-                                    <p>${booking.flight.from.split('(')[0]}</p>
-                                </div>
-                                <div class="bp-plane-icon">
-                                    <i class="fas fa-plane"></i>
-                                </div>
-                                <div class="bp-city text-right">
-                                    <h2>${booking.flight.to.substring(0,3).toUpperCase()}</h2>
-                                    <p>${booking.flight.to.split('(')[0]}</p>
-                                </div>
+                        
+                        <div class="bp-route-row">
+                            <div class="bp-city">
+                                <span class="bp-city-code">${booking.flight.from.substring(0,3).toUpperCase()}</span>
+                                <span class="bp-city-name">${booking.flight.from.split('(')[0]}</span>
                             </div>
-                            
-                            <div class="bp-details-grid">
-                                <div class="bp-item">
-                                    <label>Passenger</label>
-                                    <strong>${booking.paxName}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Flight</label>
-                                    <strong>${booking.flight.flightNumber}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Date</label>
-                                    <strong>${booking.flight.date}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Gate</label>
-                                    <strong>${gate}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Boarding Time</label>
-                                    <strong>${booking.flight.departure.time}</strong>
-                                </div>
-                                <div class="bp-item">
-                                    <label>Seat</label>
-                                    <strong>${booking.seats.join(', ')}</strong>
-                                </div>
+                            <div class="bp-arrow"><i class="fas fa-arrow-right"></i></div>
+                            <div class="bp-city text-right">
+                                <span class="bp-city-code">${booking.flight.to.substring(0,3).toUpperCase()}</span>
+                                <span class="bp-city-name">${booking.flight.to.split('(')[0]}</span>
                             </div>
                         </div>
                         
-                        <div class="bp-barcode-section">
-                            <div class="bp-item">
-                                <label>Terminal</label>
-                                <strong>${terminal}</strong>
+                        <div class="bp-info-grid">
+                            <div>
+                                <span class="bp-label">Passenger</span>
+                                <span class="bp-value">${booking.paxName}</span>
                             </div>
-                            <div class="bp-qr">
-                                <!-- Simulated QR Code Visual -->
-                                <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap: 2px;">
-                                    ${Array(36).fill(0).map(() => `<div style="width:10px; height:10px; background:${Math.random() > 0.5 ? 'white' : 'transparent'}"></div>`).join('')}
-                                </div>
+                            <div>
+                                <span class="bp-label">Flight</span>
+                                <span class="bp-value">${booking.flight.flightNumber}</span>
                             </div>
-                            <div class="bp-item">
-                                <label>Ref</label>
-                                <strong style="font-size: 0.9rem;">${booking.ref}</strong>
+                            <div>
+                                <span class="bp-label">Gate</span>
+                                <span class="bp-value bp-mono">${gate}</span>
+                            </div>
+                            <div>
+                                <span class="bp-label">Seat</span>
+                                <span class="bp-value bp-mono">${booking.seats.join(',')}</span>
+                            </div>
+                            <div>
+                                <span class="bp-label">Date</span>
+                                <span class="bp-value">${booking.flight.date}</span>
+                            </div>
+                            <div>
+                                <span class="bp-label">Time</span>
+                                <span class="bp-value">${booking.flight.departure.time}</span>
+                            </div>
+                            <div>
+                                <span class="bp-label">Terminal</span>
+                                <span class="bp-value bp-mono">${terminal}</span>
+                            </div>
+                            <div>
+                                <span class="bp-label">SEQ</span>
+                                <span class="bp-value bp-mono">0${Math.floor(Math.random()*90)+10}</span>
                             </div>
                         </div>
+                        
+                        <div class="bp-barcode-area"></div>
                     </div>
-                    <div class="bp-footer">
-                        <span>SkyWings Airlines Inc.</span>
-                        <span>Electronic Ticket</span>
+                    
+                    <div class="bp-stub-section">
+                        <div class="bp-stub-info">
+                            <span class="bp-label">Passenger</span>
+                            <span class="bp-value" style="font-size:0.9rem">${booking.paxName}</span>
+                        </div>
+                        <div class="bp-stub-info">
+                            <span class="bp-label">Flight</span>
+                            <span class="bp-value">${booking.flight.flightNumber}</span>
+                        </div>
+                        <div class="bp-stub-info">
+                            <span class="bp-label">Seat</span>
+                            <span class="bp-stub-code">${booking.seats[0]}</span>
+                        </div>
+                        <div class="bp-stub-info">
+                            <span class="bp-label">PNR</span>
+                            <span class="bp-value bp-mono">${booking.ref}</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1720,22 +1594,61 @@
                     const status = booking.status || currentFlight.status || "On Time";
                     
                     const statusClass = getStatusClass(status);
+                    
+                    // Determine active step
+                    let step = 1;
+                    if(status === 'Boarding') step = 2;
+                    if(status === 'In Air') step = 3;
+                    if(status === 'Landed') step = 4;
 
                     resultDiv.innerHTML = `
-                        <div class="step-card" style="border-left: 5px solid var(--success);">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h3>Flight ${currentFlight.flightNumber}</h3>
-                                <span class="status-badge ${statusClass}">${status}</span>
+                        <div class="tracking-status-card">
+                            <div class="flight-header">
+                                <span class="status-label ${statusClass}" style="padding: 5px 15px; border-radius: 20px; background: #e2e8f0; color: #475569;">${status}</span>
+                                <h2 class="mt-2">${currentFlight.flightNumber}</h2>
+                                <p class="text-muted">${currentFlight.from.split('(')[0]} <i class="fas fa-long-arrow-alt-right"></i> ${currentFlight.to.split('(')[0]}</p>
                             </div>
-                            <p class="mb-2 mt-2">Route: <strong>${currentFlight.from}</strong> to <strong>${currentFlight.to}</strong></p>
-                            <div style="background: var(--bg-body); padding: 15px; border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div>Departure: <strong>${currentFlight.departure.time}</strong></div>
-                                <div>Arrival: <strong>${currentFlight.arrival.time}</strong></div>
-                                <div>Gate: <strong>B12</strong></div>
-                                <div>Ref: <strong>${booking.ref}</strong></div>
+                            
+                            <div class="progress-track">
+                                <div class="step ${step >= 1 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">Scheduled</div>
+                                </div>
+                                <div class="step ${step >= 2 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">Boarding</div>
+                                </div>
+                                <div class="step ${step >= 3 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">In Air</div>
+                                </div>
+                                <div class="step ${step >= 4 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">Landed</div>
+                                </div>
                             </div>
+                            
+                            <div class="flight-grid-details">
+                                <div class="detail-item">
+                                    <span>Departure</span>
+                                    <strong>${currentFlight.departure.time}</strong>
+                                </div>
+                                <div class="detail-item">
+                                    <span>Arrival</span>
+                                    <strong>${currentFlight.arrival.time}</strong>
+                                </div>
+                                <div class="detail-item">
+                                    <span>Gate</span>
+                                    <strong>B12</strong>
+                                </div>
+                                <div class="detail-item">
+                                    <span>Duration</span>
+                                    <strong>${currentFlight.duration}</strong>
+                                </div>
+                            </div>
+                            
                             <div class="mt-2 text-right">
-                                <button class="btn-secondary btn-sm" onclick="copyTrackingLink('${booking.ref}')"><i class="fas fa-link"></i> Copy Link</button>
+                                <button class="btn-secondary btn-sm" onclick="copyTrackingLink('${booking.ref}')"><i class="fas fa-link"></i> Share Status</button>
                             </div>
                         </div>
                     `;
@@ -1747,24 +1660,55 @@
 
                 if (flight) {
                     const status = flight.status || "On Time";
-                    const statusClass = getStatusClass(status);
+                    let step = 1;
+                    if(status === 'Boarding') step = 2;
+                    if(status === 'In Air') step = 3;
+                    if(status === 'Landed') step = 4;
 
                     resultDiv.innerHTML = `
-                        <div class="step-card" style="border-left: 5px solid var(--primary);">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h3>Flight ${flight.flightNumber}</h3>
-                                <span class="status-badge ${statusClass}">${status}</span>
+                        <div class="tracking-status-card">
+                            <div class="flight-header">
+                                <span class="status-label" style="padding: 5px 15px; border-radius: 20px; background: #e2e8f0; color: #475569;">${status}</span>
+                                <h2 class="mt-2">${flight.flightNumber}</h2>
+                                <p class="text-muted">${flight.from.split('(')[0]} <i class="fas fa-long-arrow-alt-right"></i> ${flight.to.split('(')[0]}</p>
                             </div>
-                            <p class="mb-2 mt-2">Airline: <strong>${flight.airline}</strong></p>
-                            <p class="mb-2">Route: <strong>${flight.from}</strong> to <strong>${flight.to}</strong></p>
-                            <div style="background: var(--bg-body); padding: 15px; border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div>Date: <strong>${flight.date}</strong></div>
-                                <div>Duration: <strong>${flight.duration}</strong></div>
-                                <div>Departure: <strong>${flight.departure.time}</strong></div>
-                                <div>Arrival: <strong>${flight.arrival.time}</strong></div>
+                            
+                            <div class="progress-track">
+                                <div class="step ${step >= 1 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">Scheduled</div>
+                                </div>
+                                <div class="step ${step >= 2 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">Boarding</div>
+                                </div>
+                                <div class="step ${step >= 3 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">In Air</div>
+                                </div>
+                                <div class="step ${step >= 4 ? 'active' : ''}">
+                                    <div class="step-circle"></div>
+                                    <div class="step-label">Landed</div>
+                                </div>
                             </div>
-                            <div class="mt-2 text-right">
-                                <button class="btn-secondary btn-sm" onclick="copyTrackingLink('${flight.flightNumber}')"><i class="fas fa-link"></i> Copy Link</button>
+                            
+                            <div class="flight-grid-details">
+                                <div class="detail-item">
+                                    <span>Date</span>
+                                    <strong>${flight.date}</strong>
+                                </div>
+                                <div class="detail-item">
+                                    <span>Departure</span>
+                                    <strong>${flight.departure.time}</strong>
+                                </div>
+                                <div class="detail-item">
+                                    <span>Arrival</span>
+                                    <strong>${flight.arrival.time}</strong>
+                                </div>
+                                <div class="detail-item">
+                                    <span>Duration</span>
+                                    <strong>${flight.duration}</strong>
+                                </div>
                             </div>
                         </div>
                     `;
