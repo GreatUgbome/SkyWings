@@ -822,7 +822,7 @@
     <!-- Footer -->
     <footer class="footer" style="background: var(--bg-card); padding: 30px 0; border-top: 1px solid var(--border); text-align: center; margin-top: auto;">
         <div class="container">
-            <p class="text-muted">&copy; 2025 SkyWings Airlines. Built for demo purposes.</p>
+            <p class="text-muted">&copy; 2025 SkyWings Airlines. All rights reserved.</p>
         </div>
     </footer>
 
@@ -971,7 +971,7 @@
                 });
                 
                 if (flights.length === 0) {
-                    const initialFlights = generateSampleFlights();
+                    const initialFlights = getDefaultFlightSchedule();
                     initialFlights.forEach(async (flight) => {
                         await addDoc(flightsCol, flight);
                     });
@@ -1955,7 +1955,7 @@
             }, 3000);
         }
 
-        function generateSampleFlights() {
+        function getDefaultFlightSchedule() {
             // These will be pushed to Firebase if collection is empty
             const routes = [
                 { from: "New York", to: "London", price: 450, time: "7h 30m" },
