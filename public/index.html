@@ -184,6 +184,7 @@
                     <button class="nav-item px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all active-nav" data-target="home" onclick="navigateTo('home')">Search</button>
                     <button class="nav-item px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all" data-target="tracking" onclick="navigateTo('tracking')">Track</button>
                     <button class="nav-item px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all" data-target="manage" onclick="navigateTo('manage')">My Trips</button>
+                    <button id="profile-nav-item" class="nav-item hidden px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all" data-target="profile" onclick="navigateTo('profile')">Profile</button>
                 </div>
 
                 <div class="hidden md:flex items-center gap-4">
@@ -593,6 +594,23 @@
             </div>
         </div>
 
+        <!-- VIEW: PROFILE -->
+        <div id="view-profile" class="view-section hidden container mx-auto px-4 py-12">
+            <h2 class="text-3xl font-bold text-brand-dark dark:text-white mb-2 text-center">My Profile</h2>
+            <p class="text-center text-slate-500 mb-8">Manage your saved passenger details for faster bookings.</p>
+
+            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold text-lg text-brand-dark dark:text-white mb-4">Saved Passengers</h3>
+                <div id="saved-passengers-list" class="space-y-3">
+                    <!-- Saved passengers will be rendered here -->
+                </div>
+                <div id="no-saved-passengers" class="hidden text-center py-8 text-slate-400">
+                    <i class="fas fa-users text-4xl mb-3"></i>
+                    <p>No saved passengers yet.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- VIEW: CONFIRMATION (PRINT) -->
         <div id="view-confirmation" class="view-section hidden bg-white print-only-section">
             <div class="container mx-auto px-4 py-12 text-center no-print">
@@ -984,6 +1002,7 @@
             if(viewId === 'manage') window.renderBookings();
             if(viewId === 'admin') window.renderAdminPanel();
             if(viewId === 'home') renderRecentSearches();
+            if(viewId === 'profile') window.renderProfile();
         };
 
         window.toggleMobileMenu = () => {
@@ -1008,8 +1027,57 @@
             });
         };
 
+        window.cancelBooking = async (bookingId, userBookingId) => {
+            if(confirm("Are you sure you want to cancel this booking? This action cannot be undone.")) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', bookingId));
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', userId, 'bookings', userBookingId));
+                window.showToast("Booking Cancelled", "success");
+            }
+        };
+
         // Alias for function name mismatch
         window.renderBookings = () => window.renderManage();
+
+        window.renderProfile = () => {
+            const saved = JSON.parse(localStorage.getItem('skywings_saved_passengers') || '[]');
+            const list = document.getElementById('saved-passengers-list');
+            const noSaved = document.getElementById('no-saved-passengers');
+            
+            if(!list) return;
+            
+            if(saved.length === 0) {
+                noSaved.classList.remove('hidden');
+                list.innerHTML = '';
+            } else {
+                noSaved.classList.add('hidden');
+                list.innerHTML = saved.map((p, idx) => `
+                    <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-lg flex justify-between items-center border border-slate-200 dark:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center text-brand-primary">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800 dark:text-white">${p}</p>
+                                <p class="text-xs text-slate-500">Saved passenger</p>
+                            </div>
+                        </div>
+                        <button onclick="deleteSavedPassenger(${idx})" class="text-red-500 hover:text-red-700 font-bold text-sm">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+        };
+
+        window.deleteSavedPassenger = (idx) => {
+            if(confirm("Remove this saved passenger?")) {
+                const saved = JSON.parse(localStorage.getItem('skywings_saved_passengers') || '[]');
+                saved.splice(idx, 1);
+                localStorage.setItem('skywings_saved_passengers', JSON.stringify(saved));
+                window.renderProfile();
+                window.showToast("Passenger removed", "success");
+            }
+        };
 
         window.applyFiltersAndSort = () => {
             const priceMax = parseInt(document.getElementById('price-range').value);
@@ -1550,19 +1618,27 @@
 
         window.renderManage = () => {
              const list = document.getElementById('bookings-list');
+             const profileBtn = document.getElementById('profile-nav-item');
              if(!list) return;
+             
+             // Show profile button
+             if(profileBtn) profileBtn.classList.remove('hidden');
+
              if(!State.bookings.length) {
                  document.getElementById('no-bookings').classList.remove('hidden');
                  list.innerHTML = '';
              } else {
                  document.getElementById('no-bookings').classList.add('hidden');
-                 list.innerHTML = State.bookings.map(b => `
+                 list.innerHTML = State.bookings.map((b, idx) => `
                     <div class="bg-white dark:bg-slate-800 p-4 border rounded-xl shadow-sm flex justify-between items-center dark:border-slate-700">
                         <div>
                             <div class="font-bold text-brand-dark dark:text-white">${b.flight.from.split('(')[0]} <i class="fas fa-arrow-right text-xs"></i> ${b.flight.to.split('(')[0]}</div>
                             <div class="text-xs text-slate-500 font-mono">${b.ref} • ${b.flight.date}</div>
                         </div>
-                        <button onclick="renderTicket(${JSON.stringify(b).replace(/"/g, '&quot;')}); navigateTo('confirmation')" class="text-sm text-brand-primary font-bold hover:underline">View</button>
+                        <div class="flex gap-2">
+                            <button onclick="renderTicket(${JSON.stringify(b).replace(/"/g, '&quot;')}); navigateTo('confirmation')" class="text-sm text-brand-primary font-bold hover:underline">View</button>
+                            <button onclick="window.cancelBooking('${b.id}', '${State.bookings[idx].id}')" class="text-sm text-red-500 font-bold hover:underline">Cancel</button>
+                        </div>
                     </div>
                 `).join('');
              }
