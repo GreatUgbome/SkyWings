@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- html2pdf SDK -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script type="text/javascript">
         (function() {
             emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS Public Key
@@ -203,10 +205,14 @@
                 <div class="hidden md:flex space-x-1 bg-slate-100/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200 dark:border-slate-700">
                     <button class="nav-item px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all active-nav" data-target="home" onclick="navigateTo('home')">Search</button>
                     <button class="nav-item px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all" data-target="tracking" onclick="navigateTo('tracking')">Track</button>
-                    <button class="nav-item px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all" data-target="manage" onclick="navigateTo('manage')">My Trips</button>
+                    <button class="nav-item px-5 py-2.5 text-sm font-semibold rounded-full text-slate-600 dark:text-slate-300 hover:text-brand-dark dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 transition-all" data-target="manage" onclick="navigateTo('manage')">Profile</button>
                 </div>
 
                 <div class="hidden md:flex items-center gap-4">
+                    <!-- Loyalty Points Badge -->
+                    <div class="hidden md:flex items-center text-sm font-bold text-brand-primary bg-sky-50 dark:bg-slate-800 px-3 py-1 rounded-full border border-sky-100 dark:border-slate-700">
+                        <i class="fas fa-gem mr-2"></i> <span id="points-val">0</span> Pts
+                    </div>
                     <button id="theme-toggle" onclick="toggleTheme()" class="text-slate-500 hover:text-brand-dark dark:text-slate-400 dark:hover:text-white transition-colors text-lg p-2">
                         <i class="fas fa-moon"></i>
                     </button>
@@ -227,7 +233,7 @@
     <div id="mobile-menu" class="hidden fixed inset-0 z-40 bg-white pt-24 px-6 space-y-6 no-print">
         <a href="#" onclick="navigateTo('home'); toggleMobileMenu()" class="block text-2xl font-bold text-brand-dark">Search Flights</a>
         <a href="#" onclick="navigateTo('tracking'); toggleMobileMenu()" class="block text-2xl font-bold text-brand-dark">Track Flight</a>
-        <a href="#" onclick="navigateTo('manage'); toggleMobileMenu()" class="block text-2xl font-bold text-brand-dark">My Trips</a>
+        <a href="#" onclick="navigateTo('manage'); toggleMobileMenu()" class="block text-2xl font-bold text-brand-dark">Profile</a>
         <a href="#" onclick="navigateTo('admin'); toggleMobileMenu()" class="block text-2xl font-bold text-brand-primary">Admin Access</a>
         <button class="absolute top-6 right-6 text-2xl text-slate-500" onclick="toggleMobileMenu()"><i class="fas fa-times"></i></button>
     </div>
@@ -512,6 +518,24 @@
                             <h3 class="text-xl font-bold text-brand-dark dark:text-white">Payment Method</h3>
                         </div>
                         
+                        <!-- Points Redemption -->
+                        <div class="bg-sky-50 dark:bg-slate-700/50 p-4 rounded-xl border border-sky-100 dark:border-slate-600 mb-6">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-gem text-brand-primary"></i>
+                                    <span class="font-bold text-brand-dark dark:text-white">Redeem Points</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="redeem-points-toggle" class="sr-only peer" onchange="togglePointsRedemption()">
+                                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+                                </label>
+                            </div>
+                            <div id="points-redemption-details" class="hidden mt-3 text-sm text-slate-600 dark:text-slate-300">
+                                <p>Available: <span class="font-bold" id="avail-points">0</span> pts</p>
+                                <p class="text-brand-success font-bold mt-1">Discount: -$<span id="discount-val">0.00</span></p>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div class="border-2 border-brand-primary bg-sky-50/50 p-4 rounded-xl cursor-pointer flex items-center gap-3">
                                 <i class="fas fa-credit-card text-brand-primary text-xl"></i>
@@ -656,7 +680,22 @@
         
         <!-- VIEW: MANAGE BOOKINGS -->
         <div id="view-manage" class="view-section hidden container mx-auto px-4 py-12">
-            <h2 class="text-3xl font-bold text-brand-dark dark:text-white mb-8 text-center">My Trips</h2>
+            <h2 class="text-3xl font-bold text-brand-dark dark:text-white mb-8 text-center">Profile & Trips</h2>
+            
+            <!-- Profile Form -->
+            <div class="max-w-3xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-8">
+                <h3 class="font-bold text-lg text-brand-dark dark:text-white mb-4">Personal Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="profile-name" class="p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg dark:text-white" placeholder="Full Name">
+                    <input type="email" id="profile-email" class="p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg dark:text-white" placeholder="Email Address">
+                    <input type="tel" id="profile-phone" class="p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg dark:text-white" placeholder="Phone Number">
+                </div>
+                <div class="mt-4 text-right">
+                    <button onclick="saveProfile()" class="bg-brand-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-sky-600 transition-colors">Save Changes</button>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-brand-dark dark:text-white mb-4 text-center">Booking History</h3>
             <div id="user-bookings-container" class="max-w-3xl mx-auto space-y-4"></div>
             <div id="bookings-list" class="space-y-4 max-w-4xl mx-auto"></div>
             <div id="no-bookings" class="hidden text-center py-12 text-slate-400">
@@ -689,6 +728,9 @@
                 <div class="flex justify-center gap-4 mb-12">
                     <button onclick="window.print()" class="bg-brand-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2">
                         <i class="fas fa-print"></i> Print Documents
+                    </button>
+                    <button onclick="downloadTicketPDF()" class="bg-slate-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2">
+                        <i class="fas fa-file-pdf"></i> Download PDF
                     </button>
                     <button onclick="navigateTo('home')" class="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-xl font-bold hover:bg-slate-50 transition-colors">
                         Return Home
@@ -868,7 +910,7 @@
 
     <!-- Admin Booking Edit Modal -->
     <div id="admin-booking-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 border dark:border-slate-700">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-2xl w-full mx-4 border dark:border-slate-700 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-brand-dark dark:text-white">Edit Booking</h3>
                 <button onclick="closeModal('admin-booking-modal')" class="text-slate-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
@@ -915,6 +957,42 @@
                      </datalist>
                 </div>
                 
+                <div class="col-span-2 border-t border-slate-100 dark:border-slate-700 my-2"></div>
+                <h4 class="col-span-2 font-bold text-brand-primary">Flight Override (Absolute Power)</h4>
+                
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Progress</label>
+                    <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-progress" list="progress-options">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Remaining Time</label>
+                    <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-duration" placeholder="e.g. 1h 30m">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Altitude (ft)</label>
+                    <input type="number" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-altitude">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Speed (kts)</label>
+                    <input type="number" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-speed">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Origin</label>
+                    <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-from">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Destination</label>
+                    <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-to">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Departure Time</label>
+                    <input type="time" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-dep">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Est. Arrival</label>
+                    <input type="time" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-arr">
+                </div>
+
                 <div class="col-span-2 pt-4">
                     <button type="submit" class="w-full py-2 bg-brand-primary text-white rounded font-bold">Update Booking</button>
                 </div>
@@ -956,7 +1034,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // --- STATE & CONFIG ---
@@ -971,6 +1049,8 @@
             isAdminLoggedIn: false,
             autoTrackRef: null,
             map: null,
+            userPoints: 0,
+            currentBaseTotal: 0,
             planeMarker: null,
             activeTab: 'flights' // Default tab
         };
@@ -1280,10 +1360,16 @@
             else if(item.type === 'hotel') total = item.price * 3; // Mock 3 nights
             else if(item.type === 'car') total = item.price * 3; // Mock 3 days
 
+            const finalTotal = total * 1.1;
+            State.currentBaseTotal = finalTotal;
             document.getElementById('summary-base').innerText = `$${total.toFixed(2)}`;
-            document.getElementById('summary-total').innerText = `$${(total*1.1).toFixed(2)}`;
-            document.getElementById('total-price').value = `$${(total*1.1).toFixed(2)}`;
-            document.getElementById('final-price-btn').innerText = `$${(total*1.1).toFixed(2)}`;
+            document.getElementById('summary-total').innerText = `$${finalTotal.toFixed(2)}`;
+            document.getElementById('total-price').value = `$${finalTotal.toFixed(2)}`;
+            document.getElementById('final-price-btn').innerText = `$${finalTotal.toFixed(2)}`;
+            
+            // Reset Points Toggle
+            const toggle = document.getElementById('redeem-points-toggle');
+            if(toggle) { toggle.checked = false; toggle.dispatchEvent(new Event('change')); }
             
             window.navigateTo('booking');
         };
@@ -1314,6 +1400,19 @@
 
             const ref = (State.selectedItem.type === 'flight' ? 'SKW' : (State.selectedItem.type === 'hotel' ? 'HTL' : 'CAR')) + Math.floor(Math.random()*900000+100000);
             
+            // Calculate Loyalty Points (1 point per $10)
+            const priceVal = parseFloat(document.getElementById('total-price').value.replace(/[^0-9.]/g, '')) || 0;
+            const earnedPoints = Math.floor(priceVal / 10);
+            
+            // Check redemption
+            const redeemToggle = document.getElementById('redeem-points-toggle');
+            let pointsUsed = 0;
+            if(redeemToggle && redeemToggle.checked) {
+                // Discount = Base - Paid
+                const discount = State.currentBaseTotal - priceVal;
+                pointsUsed = Math.ceil(discount * 10); // 10 points = $1
+            }
+
             const booking = {
                 ref,
                 type: State.selectedItem.type,
@@ -1333,6 +1432,10 @@
                 await addDoc(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), booking);
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'bookings'), booking);
                 
+                // Update Loyalty Points
+                const pointsChange = earnedPoints - pointsUsed;
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId), { points: increment(pointsChange) }, { merge: true });
+                
                 document.getElementById('booking-ref').innerText = ref;
                 const baseUrl = window.location.href.split('?')[0];
                 const trackingUrl = State.selectedItem.type === 'flight' ? `${baseUrl}?track=${ref}` : '#';
@@ -1346,7 +1449,7 @@
 
                 renderTicket(booking);
                 window.navigateTo('confirmation');
-                window.showToast("Booking Successful!", "success");
+                window.showToast(`Booking Successful! Earned: ${earnedPoints}, Used: ${pointsUsed}`, "success");
                 window.sendEmailNotification(booking);
             } catch(e) { console.error(e); window.showToast("Failed", "error"); }
         };
@@ -1461,6 +1564,61 @@
                     window.showToast(`Confirmation email sent to ${booking.email} (Simulated)`, "success");
                 }, 2000);
             }
+        };
+
+        window.downloadTicketPDF = () => {
+            const element = document.querySelector('.boarding-pass-wrapper');
+            const opt = {
+                margin: 10,
+                filename: `SkyWings_Ticket_${document.getElementById('booking-ref').innerText}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        };
+
+        window.togglePointsRedemption = () => {
+            const toggle = document.getElementById('redeem-points-toggle');
+            const details = document.getElementById('points-redemption-details');
+            const totalInput = document.getElementById('total-price');
+            const summaryTotal = document.getElementById('summary-total');
+            const btnPrice = document.getElementById('final-price-btn');
+            
+            const baseTotal = State.currentBaseTotal || 0;
+            
+            if(toggle.checked) {
+                details.classList.remove('hidden');
+                const points = State.userPoints || 0;
+                document.getElementById('avail-points').innerText = points;
+                
+                // Rate: 10 points = $1
+                let discount = points / 10;
+                if(discount > baseTotal) discount = baseTotal; // Cap at total
+                
+                document.getElementById('discount-val').innerText = discount.toFixed(2);
+                const newTotal = baseTotal - discount;
+                
+                summaryTotal.innerText = `$${newTotal.toFixed(2)}`;
+                totalInput.value = `$${newTotal.toFixed(2)}`;
+                btnPrice.innerText = `$${newTotal.toFixed(2)}`;
+            } else {
+                details.classList.add('hidden');
+                summaryTotal.innerText = `$${baseTotal.toFixed(2)}`;
+                totalInput.value = `$${baseTotal.toFixed(2)}`;
+                btnPrice.innerText = `$${baseTotal.toFixed(2)}`;
+            }
+        };
+
+        window.saveProfile = async () => {
+            const name = document.getElementById('profile-name').value;
+            const email = document.getElementById('profile-email').value;
+            const phone = document.getElementById('profile-phone').value;
+            
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', userId), { name, email, phone }, { merge: true });
+                window.showToast("Profile updated successfully", "success");
+            } catch(e) { console.error(e); window.showToast("Update failed", "error"); }
         };
 
         // --- CHAT, MAP, ADMIN, INIT ---
@@ -1598,7 +1756,7 @@
                 snap.forEach(d => list.push({id: d.id, ...d.data()}));
                 State.flights = list;
                 if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
-                if(State.autoTrackRef) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
+                if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
             });
             onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), (snap) => {
                 const list = [];
@@ -1611,7 +1769,19 @@
                 snap.forEach(d => list.push({id: d.id, ...d.data()}));
                 State.allBookings = list;
                 if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
-                if(State.autoTrackRef) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
+                if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
+            });
+            
+            // User Profile Sync (Points)
+            onSnapshot(doc(db, 'artifacts', appId, 'users', userId), (doc) => {
+                if(doc.exists()) {
+                    const data = doc.data();
+                    State.userPoints = data.points || 0;
+                    if(document.getElementById('points-val')) document.getElementById('points-val').innerText = State.userPoints;
+                    if(document.getElementById('profile-name')) document.getElementById('profile-name').value = data.name || '';
+                    if(document.getElementById('profile-email')) document.getElementById('profile-email').value = data.email || '';
+                    if(document.getElementById('profile-phone')) document.getElementById('profile-phone').value = data.phone || '';
+                }
             });
             
             // SYSTEM ALERTS - FIXED PATH (6 segments)
@@ -1763,6 +1933,21 @@
                 document.getElementById('edit-bk-seats').value = b.seats ? b.seats.join(', ') : '';
                 document.getElementById('edit-bk-price').value = b.total || '';
                 document.getElementById('edit-bk-status').value = b.status || 'Confirmed';
+                
+                // Populate Flight Override Fields
+                const flightNum = b.flight?.number || b.details?.number;
+                const flight = State.flights.find(f => f.number === flightNum);
+                
+                const src = flight || b.flight || b.details || {};
+                document.getElementById('edit-bk-progress').value = src.progress || '';
+                document.getElementById('edit-bk-duration').value = src.dur || src.duration || '';
+                document.getElementById('edit-bk-altitude').value = src.altitude || '';
+                document.getElementById('edit-bk-speed').value = src.speed || '';
+                document.getElementById('edit-bk-from').value = src.from || '';
+                document.getElementById('edit-bk-to').value = src.to || '';
+                document.getElementById('edit-bk-dep').value = src.dep || '';
+                document.getElementById('edit-bk-arr').value = src.arr || '';
+
                 document.getElementById('admin-booking-modal').classList.remove('hidden');
             }
         };
@@ -1856,12 +2041,49 @@
                         seats: seats,
                         total: document.getElementById('edit-bk-price').value,
                         status: document.getElementById('edit-bk-status').value,
-                        "flight.number": document.getElementById('edit-bk-flight').value
+                        flight: {
+                            number: document.getElementById('edit-bk-flight').value,
+                            progress: document.getElementById('edit-bk-progress').value,
+                            dur: document.getElementById('edit-bk-duration').value,
+                            altitude: document.getElementById('edit-bk-altitude').value,
+                            speed: document.getElementById('edit-bk-speed').value,
+                            from: document.getElementById('edit-bk-from').value,
+                            to: document.getElementById('edit-bk-to').value,
+                            dep: document.getElementById('edit-bk-dep').value,
+                            arr: document.getElementById('edit-bk-arr').value
+                        },
+                        "details.from": document.getElementById('edit-bk-from').value,
+                        "details.to": document.getElementById('edit-bk-to').value,
+                        "details.dep": document.getElementById('edit-bk-dep').value,
+                        "details.arr": document.getElementById('edit-bk-arr').value,
+                        "details.dur": document.getElementById('edit-bk-duration').value,
+                        "details.number": document.getElementById('edit-bk-flight').value
                     };
+
+                    // Absolute Power: Update Flight Data directly from Booking
+                    const flightNum = document.getElementById('edit-bk-flight').value;
+                    const flight = State.flights.find(f => f.number === flightNum);
+                    if (flight) {
+                        const flightData = {
+                            progress: document.getElementById('edit-bk-progress').value,
+                            dur: document.getElementById('edit-bk-duration').value,
+                            altitude: document.getElementById('edit-bk-altitude').value,
+                            speed: document.getElementById('edit-bk-speed').value,
+                            from: document.getElementById('edit-bk-from').value,
+                            to: document.getElementById('edit-bk-to').value,
+                            dep: document.getElementById('edit-bk-dep').value,
+                            arr: document.getElementById('edit-bk-arr').value
+                        };
+                        try {
+                            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'flights', flight.id), flightData);
+                            window.showToast("Flight Telemetry Updated", "success");
+                        } catch(e) { console.error("Flight update failed", e); }
+                    }
+
                     try {
-                        await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), updateData);
+                        await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'bookings', id), updateData, { merge: true });
                         const b = State.allBookings.find(x => x.id === id);
-                        if(b && b.userId) { await updateDoc(doc(db, 'artifacts', appId, 'users', b.userId, 'bookings', id), updateData); }
+                        if(b && b.userId) { await setDoc(doc(db, 'artifacts', appId, 'users', b.userId, 'bookings', id), updateData, { merge: true }); }
                         document.getElementById('admin-booking-modal').classList.add('hidden');
                         window.showToast("Updated", "success");
                     } catch(e) { console.error(e); }
@@ -1933,6 +2155,7 @@
         window.handleTrack = () => {
             const input = document.getElementById('track-input').value.trim().toUpperCase();
             const resDiv = document.getElementById('tracking-result-container');
+            State.autoTrackRef = input; // Register for real-time updates
             if(!input) return window.showToast("Enter reference or flight number", "error");
             
             // Check if we are updating an existing view
@@ -1988,13 +2211,37 @@
                 const isTakeoff = currentIdx >= stages.indexOf('Take-off');
                 const isLanded = currentIdx >= stages.indexOf('Landed');
 
+                // Generate Timeline HTML
+                const timelineHTML = `
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${isCheckin ? 'active' : ''}"></div>
+                        <div class="text-sm font-bold text-slate-800 dark:text-white">Check-in Open</div>
+                        <div class="text-xs text-slate-500">${isCheckin ? 'Completed' : 'Pending'}</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${isBoarding ? 'active' : ''}"></div>
+                        <div class="text-sm font-bold text-slate-800 dark:text-white">Boarding</div>
+                        <div class="text-xs text-slate-500">Gate ${gate}</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${isTakeoff ? 'active' : ''}"></div>
+                        <div class="text-sm font-bold text-slate-800 dark:text-white">Take-off</div>
+                        <div class="text-xs text-slate-500">${isTakeoff ? 'Departed' : 'Scheduled'}</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot ${isLanded ? 'active' : ''}"></div>
+                        <div class="text-sm font-bold text-slate-800 dark:text-white">Landed</div>
+                        <div class="text-xs text-slate-500">Terminal ${terminal}</div>
+                    </div>`;
+
                 // If updating, just update DOM elements and Map
                 if (isUpdate) {
                     if(document.getElementById('track-alt')) document.getElementById('track-alt').innerHTML = `${altitude} <span class="text-xs">FT</span>`;
                     if(document.getElementById('track-spd')) document.getElementById('track-spd').innerHTML = `${speed} <span class="text-xs">KTS</span>`;
                     if(document.getElementById('track-status')) document.getElementById('track-status').innerText = status;
                     if(document.getElementById('track-status')) document.getElementById('track-status').className = `${statusColor} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider`;
-                    
+                    if(document.getElementById('track-remaining')) document.getElementById('track-remaining').innerText = remaining;
+                    if(document.getElementById('track-timeline')) document.getElementById('track-timeline').innerHTML = timelineHTML;
                     window.initMap(fromCode, toCode, flight.currentLat, flight.currentLng);
                     return;
                 }
@@ -2055,7 +2302,7 @@
                                     </div>
                                     <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700">
                                         <div class="text-[10px] text-slate-400 mb-1 tracking-wider">REMAINING</div>
-                                        <div class="text-lg font-mono font-bold text-sky-400">${remaining}</div>
+                                        <div class="text-lg font-mono font-bold text-sky-400" id="track-remaining">${remaining}</div>
                                     </div>
                                 </div>
 
@@ -2068,28 +2315,7 @@
                             <!-- Timeline -->
                             <div class="bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-2xl p-6 shadow-lg h-[400px] overflow-y-auto">
                                 <h4 class="font-bold text-brand-dark dark:text-white mb-6">Flight Progress</h4>
-                                <div class="pl-2">
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot ${isCheckin ? 'active' : ''}"></div>
-                                        <div class="text-sm font-bold text-slate-800 dark:text-white">Check-in Open</div>
-                                        <div class="text-xs text-slate-500">${isCheckin ? 'Completed' : 'Pending'}</div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot ${isBoarding ? 'active' : ''}"></div>
-                                        <div class="text-sm font-bold text-slate-800 dark:text-white">Boarding</div>
-                                        <div class="text-xs text-slate-500">Gate ${gate}</div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot ${isTakeoff ? 'active' : ''}"></div>
-                                        <div class="text-sm font-bold text-slate-800 dark:text-white">Take-off</div>
-                                        <div class="text-xs text-slate-500">${isTakeoff ? 'Departed' : 'Scheduled'}</div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot ${isLanded ? 'active' : ''}"></div>
-                                        <div class="text-sm font-bold text-slate-800 dark:text-white">Landed</div>
-                                        <div class="text-xs text-slate-500">Terminal ${terminal}</div>
-                                    </div>
-                                </div>
+                                <div class="pl-2" id="track-timeline">${timelineHTML}</div>
                                 <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
                                     <div class="flex justify-between items-center text-sm">
                                         <span class="text-slate-500">Baggage Claim</span>
