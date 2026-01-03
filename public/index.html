@@ -956,6 +956,12 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'skywings-v2';
         let userId = null;
 
+        // --- GLOBAL FUNCTIONS ATTACHED TO WINDOW ---
+        
+        window.toggleMobileMenu = () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        };
+
         // --- THEME ---
         window.toggleTheme = () => {
             if (document.documentElement.classList.contains('dark')) {
@@ -989,7 +995,7 @@
             activeBtn.classList.add('text-brand-primary', 'border-b-2', 'border-brand-primary');
         };
 
-        function renderRecentSearches() {
+        window.renderRecentSearches = () => {
             const list = document.getElementById('recent-searches-list');
             const container = document.getElementById('recent-searches');
             const recents = JSON.parse(localStorage.getItem('skywings_recents') || '[]');
@@ -1001,7 +1007,7 @@
                     return `<button onclick="document.getElementById('from').value='${parts[0]}'; document.getElementById('to').value='${parts[1]}'" class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs text-slate-600 dark:text-slate-300 hover:bg-sky-100 hover:text-brand-primary transition-colors">${s}</button>`;
                 }).join('');
             }
-        }
+        };
 
         window.handleSearch = () => {
             const resultsDiv = document.getElementById('flight-results');
@@ -1009,6 +1015,13 @@
             window.navigateTo('results');
             resultsDiv.innerHTML = '';
             loader.classList.remove('hidden');
+
+            State.currentSearch = {
+                from: document.getElementById('from').value,
+                to: document.getElementById('to').value,
+                date: document.getElementById('departure').value,
+                pax: document.getElementById('adults-count').value
+            };
 
             setTimeout(() => {
                 loader.classList.add('hidden');
@@ -1120,7 +1133,7 @@
             </div>`;
         }
 
-        function autofillPassenger(index) {
+        window.autofillPassenger = (index) => {
             const saved = JSON.parse(localStorage.getItem('skywings_saved_passengers') || '[]');
             const name = saved[index];
             if(!name) return;
@@ -1136,7 +1149,7 @@
                 }
             }
             if(!filled) window.showToast("All passenger fields are filled", "info");
-        }
+        };
 
         // --- BOOKING LOGIC ---
         window.initBooking = (id) => {
@@ -1196,6 +1209,7 @@
 
         window.processBooking = async () => {
             if(!userId) return window.showToast("Auth initializing...", "error");
+            if(!State.selectedItem) { window.navigateTo('home'); return window.showToast("Session expired", "error"); }
             
             const nameInputs = document.querySelectorAll('.pax-name');
             let names = [];
@@ -1339,12 +1353,54 @@
         window.copyShareLink = () => { const t = document.getElementById("share-link"); t.select(); navigator.clipboard.writeText(t.value); window.showToast("Copied!", "success"); };
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
         window.swapAirports = () => { const f = document.getElementById('from'), t = document.getElementById('to'); [f.value, t.value] = [t.value, f.value]; };
-        window.logoutAdmin = () => { State.isAdminLoggedIn = false; window.navigateTo('home'); };
+        window.logoutAdmin = () => { State.isAdminLoggedIn = false; window.navigateTo('home'); window.showToast("Logged out", "info"); };
         window.deleteDocItem = async (c, id) => { if(confirm("Delete?")) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', c), id); } };
         window.checkUrlParams = () => { const p = new URLSearchParams(window.location.search); if(p.get('track')) { State.autoTrackRef=p.get('track'); navigateTo('tracking'); document.getElementById('track-input').value=p.get('track'); }};
-        window.openSeatModal = () => document.getElementById('seat-modal').classList.remove('hidden'); 
+        
+        window.generateSeatMap = () => {
+            const grid = document.getElementById('seat-grid');
+            if(!grid || grid.children.length > 0) return;
+            const cols = ['A','B','C','','D','E','F'];
+            for(let r=1; r<=12; r++) {
+                cols.forEach(c => {
+                    if(!c) {
+                        const sp = document.createElement('div'); sp.className='aisle-spacer'; sp.innerText=r; grid.appendChild(sp);
+                    } else {
+                        const id = `${r}${c}`;
+                        const b = document.createElement('button'); 
+                        b.className='seat'; b.id=`seat-${id}`; b.innerText=id;
+                        b.onclick = () => window.toggleSeat(id);
+                        if(Math.random()<0.2) { b.disabled=true; }
+                        grid.appendChild(b);
+                    }
+                });
+            }
+        };
+
+        window.openSeatModal = () => {
+            document.getElementById('seat-modal').classList.remove('hidden');
+            window.generateSeatMap();
+            document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
+            State.activeSeats.forEach(id => {
+                const el = document.getElementById(`seat-${id}`);
+                if(el) el.classList.add('selected');
+            });
+        };
+
         window.confirmSeats = () => { document.getElementById('selected-seats-display').innerText=State.activeSeats.join(',')||'None'; document.getElementById('seat-modal').classList.add('hidden'); };
-        window.toggleSeat = (id) => { State.activeSeats.includes(id)?State.activeSeats=State.activeSeats.filter(x=>x!==id):State.activeSeats.push(id); window.openSeatModal(); }; 
+        
+        window.toggleSeat = (id) => { 
+            const btn = document.getElementById(`seat-${id}`);
+            if(State.activeSeats.includes(id)) {
+                State.activeSeats = State.activeSeats.filter(x => x !== id);
+                if(btn) btn.classList.remove('selected');
+            } else {
+                const pax = parseInt(State.currentSearch.pax || 1);
+                if(State.activeSeats.length >= pax) return window.showToast(`Max ${pax} seats`, 'error');
+                State.activeSeats.push(id);
+                if(btn) btn.classList.add('selected');
+            }
+        }; 
 
         // Define showToast explicitly
         window.showToast = (msg, type='info') => {
@@ -1379,10 +1435,15 @@
                                 <div class="text-xs text-slate-500 font-mono">${b.ref}</div>
                             </div>
                         </div>
-                        <button onclick="renderTicket(${JSON.stringify(b).replace(/"/g, '&quot;')}); navigateTo('confirmation')" class="text-sm text-brand-primary font-bold hover:underline">View</button>
+                        <button onclick="viewBooking('${b.id}')" class="text-sm text-brand-primary font-bold hover:underline">View</button>
                     </div>`;
                  }).join('');
              }
+        };
+
+        window.viewBooking = (id) => {
+            const b = State.bookings.find(x => x.id === id) || State.allBookings.find(x => x.id === id);
+            if(b) { renderTicket(b); navigateTo('confirmation'); }
         };
 
         // Define navigateTo explicitly
@@ -1407,7 +1468,6 @@
             if(viewId === 'home') renderRecentSearches();
         };
 
-        // ... [Include standard Auth, Sync, and Init functions exactly as previous version] ...
         const startDataSync = () => {
             const flightsCol = collection(db, 'artifacts', appId, 'public', 'data', 'flights');
             onSnapshot(flightsCol, (snap) => {
@@ -1429,6 +1489,33 @@
                 State.allBookings = list;
                 if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
             });
+            
+            // SYSTEM ALERTS - FIXED PATH (6 segments)
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'alerts', 'broadcast'), (doc) => {
+                if(doc.exists()) {
+                    const data = doc.data();
+                    if(Date.now() - data.timestamp < 60000) window.showToast("📢 SYSTEM: " + data.message, "warning");
+                }
+            });
+        };
+
+        // NEW: Send Broadcast Function
+        window.sendBroadcast = async () => {
+            const msg = document.getElementById('broadcast-msg').value;
+            if(!msg) return;
+            try {
+                // Fixed Path (6 segments)
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'alerts', 'broadcast'), {
+                    message: msg,
+                    timestamp: Date.now()
+                });
+                document.getElementById('admin-broadcast-modal').classList.add('hidden');
+                document.getElementById('broadcast-msg').value = '';
+                window.showToast("Broadcast sent to all users", "success");
+            } catch(e) {
+                console.error(e);
+                window.showToast("Broadcast failed: " + e.message, "error");
+            }
         };
 
         function parseDuration(durStr) {
@@ -1441,7 +1528,7 @@
             return h * 60 + m;
         }
 
-        function applyFiltersAndSort() {
+        window.applyFiltersAndSort = () => {
             const priceMax = parseInt(document.getElementById('price-range').value);
             const sortValue = document.getElementById('sort-flights').value;
             
@@ -1459,9 +1546,9 @@
             const countEl = document.getElementById('results-count');
             if(countEl) countEl.innerText = results.length;
             renderResultsList(results);
-        }
+        };
 
-        function renderAdminPanel() {
+        window.renderAdminPanel = () => {
              document.getElementById('adm-total-flights').innerText = State.flights.length;
              document.getElementById('adm-total-bookings').innerText = State.allBookings.length;
              
@@ -1494,9 +1581,9 @@
                         </td>
                     </tr>`).join('');
             }
-        }
+        };
 
-        function openAdminModal(id) {
+        window.openAdminModal = (id) => {
             const form = document.getElementById('admin-flight-form');
             if(form) form.reset();
             
@@ -1528,9 +1615,9 @@
             }
             
             document.getElementById('admin-modal').classList.remove('hidden');
-        }
+        };
 
-        function openBookingEditModal(id) {
+        window.openBookingEditModal = (id) => {
             const b = State.allBookings.find(x => x.id === id);
             if(b) {
                 document.getElementById('edit-booking-id').value = id;
@@ -1543,51 +1630,6 @@
                 document.getElementById('edit-bk-status').value = b.status || 'Confirmed';
                 document.getElementById('admin-booking-modal').classList.remove('hidden');
             }
-        }
-
-        async function deleteDocItem(col, id) {
-            if(confirm("Delete item?")) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', col), id);
-                    window.showToast("Deleted", "success");
-                } catch(e) { console.error(e); }
-            }
-        }
-
-        function logoutAdmin() {
-            State.isAdminLoggedIn = false;
-            window.navigateTo('home');
-            window.showToast("Logged out", "info");
-        }
-
-        function checkUrlParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const trackRef = urlParams.get('track');
-            if (trackRef) {
-                State.autoTrackRef = trackRef;
-                navigateTo('tracking');
-                document.getElementById('track-input').value = trackRef;
-            }
-        }
-
-        // --- CHAT, MAP, ADMIN, INIT ---
-        window.toggleChat = () => document.getElementById('chat-window').classList.toggle('hidden');
-        window.handleChat = (e) => { e.preventDefault(); const i = document.getElementById('chat-input'); if(i.value) { const c = document.getElementById('chat-messages'); c.innerHTML += `<div class="flex gap-2 flex-row-reverse"><div class="bg-brand-primary text-white p-3 rounded-xl text-sm">${i.value}</div></div>`; i.value=''; setTimeout(()=>{c.innerHTML+=`<div class="flex gap-2"><div class="bg-white p-3 rounded-xl text-sm border">An agent will join shortly.</div></div>`; c.scrollTop=c.scrollHeight;}, 1000); }};
-        window.copyShareLink = () => { const t = document.getElementById("share-link"); t.select(); navigator.clipboard.writeText(t.value); window.showToast("Copied!", "success"); };
-        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
-        window.swapAirports = () => { const f = document.getElementById('from'), t = document.getElementById('to'); [f.value, t.value] = [t.value, f.value]; };
-        window.openSeatModal = () => document.getElementById('seat-modal').classList.remove('hidden'); 
-        window.confirmSeats = () => { document.getElementById('selected-seats-display').innerText=State.activeSeats.join(',')||'None'; document.getElementById('seat-modal').classList.add('hidden'); };
-        window.toggleSeat = (id) => { State.activeSeats.includes(id)?State.activeSeats=State.activeSeats.filter(x=>x!==id):State.activeSeats.push(id); window.openSeatModal(); }; 
-
-        // Define showToast explicitly
-        window.showToast = (msg, type='info') => {
-            const el = document.createElement('div');
-            el.className = `toast ${type}`;
-            el.innerHTML = type === 'success' ? `<i class="fas fa-check-circle text-green-500"></i> ${msg}` : `<i class="fas fa-info-circle text-blue-500"></i> ${msg}`;
-            if(type === 'error') el.innerHTML = `<i class="fas fa-exclamation-circle text-red-500"></i> ${msg}`;
-            document.getElementById('toast-container').appendChild(el);
-            setTimeout(() => el.remove(), 3000);
         };
 
         // Standard Functions
@@ -1676,7 +1718,7 @@
             }
         }
 
-        function initMap(fromCode, toCode) {
+        window.initMap = (fromCode, toCode) => {
             const from = airportCoords[fromCode] || [40.7128, -74.0060]; // Default NYC
             const to = airportCoords[toCode] || [51.5074, -0.1278]; // Default London
 
@@ -1720,7 +1762,7 @@
                 iconAnchor: [12, 12]
             });
             L.marker(center, {icon: planeIcon}).addTo(State.map);
-        }
+        };
 
         window.handleTrack = () => {
             const input = document.getElementById('track-input').value.trim().toUpperCase();
@@ -1870,24 +1912,6 @@
 
             }, 1200);
         };
-
-        // Re-inject core functions to ensure availability
-        window.renderRecentSearches = renderRecentSearches;
-        window.renderResultsList = renderResultsList;
-        window.renderHotelResults = renderHotelResults;
-        window.renderCarResults = renderCarResults;
-        window.autofillPassenger = autofillPassenger;
-        window.renderTicket = renderTicket;
-        window.initMap = initMap;
-        window.handleTrack = handleTrack;
-        window.renderAdminPanel = renderAdminPanel;
-        window.openAdminModal = openAdminModal;
-        window.openBookingEditModal = openBookingEditModal;
-        window.deleteDocItem = deleteDocItem;
-        window.checkUrlParams = checkUrlParams;
-        window.parseDuration = parseDuration;
-        window.applyFiltersAndSort = applyFiltersAndSort;
-        window.logoutAdmin = logoutAdmin;
 
         const initAuth = async () => {
             try { if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token); else await signInAnonymously(auth); } catch (e) { await signInAnonymously(auth); }
