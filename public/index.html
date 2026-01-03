@@ -9,6 +9,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS Public Key
+        })();
+    </script>
+    <script>
+        // Prevent FOUC (Flash of Unstyled Content) for Theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     
     <script>
         tailwind.config = {
@@ -732,6 +747,11 @@
             <form id="admin-flight-form" class="grid grid-cols-2 gap-4">
                 <input type="hidden" id="edit-id">
                 
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Airline Logo</label>
+                    <input type="file" id="adm-logo-file" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white text-xs" accept="image/*">
+                    <input type="hidden" id="adm-logo-url">
+                </div>
                 <div class="col-span-2 md:col-span-1">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Airline</label>
                     <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-airline" placeholder="Airline Name" required>
@@ -778,24 +798,28 @@
 
                 <div class="col-span-2 md:col-span-1">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">General Status</label>
-                    <select class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-status">
-                        <option>On Time</option>
-                        <option>Delayed</option>
-                        <option>Cancelled</option>
-                    </select>
+                    <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-status" list="status-options" placeholder="On Time">
+                    <datalist id="status-options">
+                        <option value="On Time">
+                        <option value="Delayed">
+                        <option value="Cancelled">
+                        <option value="Diverted">
+                    </datalist>
                 </div>
                 <div class="col-span-2 md:col-span-1">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Progress Stage</label>
-                    <select class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-progress">
-                        <option value="Scheduled">Scheduled</option>
-                        <option value="Check-in">Check-in Open</option>
-                        <option value="Boarding">Boarding</option>
-                        <option value="Gate Closed">Gate Closed</option>
-                        <option value="Taxiing">Taxiing</option>
-                        <option value="Take-off">In Air / Take-off</option>
-                        <option value="Landed">Landed</option>
-                        <option value="Arrived">Arrived at Gate</option>
-                    </select>
+                    <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-progress" list="progress-options" placeholder="Scheduled">
+                    <datalist id="progress-options">
+                        <option value="Scheduled">
+                        <option value="Check-in">
+                        <option value="Boarding">
+                        <option value="Gate Closed">
+                        <option value="Taxiing">
+                        <option value="Take-off">
+                        <option value="In Air">
+                        <option value="Landed">
+                        <option value="Arrived">
+                    </datalist>
                 </div>
 
                 <div class="col-span-2 md:col-span-1">
@@ -814,6 +838,25 @@
                 <div class="col-span-2 md:col-span-1">
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tail Number</label>
                     <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-tail" placeholder="e.g. N123SW">
+                </div>
+
+                <div class="col-span-2 border-t border-slate-100 dark:border-slate-700 my-2"></div>
+                <h4 class="col-span-2 font-bold text-brand-primary">Live Telemetry (Admin Override)</h4>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Altitude (ft)</label>
+                    <input type="number" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-altitude" placeholder="Auto-generated if empty">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Speed (kts)</label>
+                    <input type="number" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-speed" placeholder="Auto-generated if empty">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Current Latitude</label>
+                    <input type="number" step="any" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-lat" placeholder="e.g. 40.7128">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Current Longitude</label>
+                    <input type="number" step="any" class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="adm-lng" placeholder="e.g. -74.0060">
                 </div>
 
                 <div class="col-span-2 pt-4">
@@ -863,12 +906,13 @@
 
                 <div class="col-span-2">
                      <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Status</label>
-                     <select class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-status">
-                        <option>Confirmed</option>
-                        <option>Check-In</option>
-                        <option>Boarded</option>
-                        <option>Cancelled</option>
-                     </select>
+                     <input class="w-full p-2 border rounded dark:bg-slate-700 dark:border-slate-600 dark:text-white" id="edit-bk-status" list="bk-status-options">
+                     <datalist id="bk-status-options">
+                        <option value="Confirmed">
+                        <option value="Check-In">
+                        <option value="Boarded">
+                        <option value="Cancelled">
+                     </datalist>
                 </div>
                 
                 <div class="col-span-2 pt-4">
@@ -912,7 +956,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // --- STATE & CONFIG ---
         const State = {
@@ -926,6 +971,7 @@
             isAdminLoggedIn: false,
             autoTrackRef: null,
             map: null,
+            planeMarker: null,
             activeTab: 'flights' // Default tab
         };
 
@@ -953,6 +999,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'skywings-v2';
         let userId = null;
 
@@ -963,17 +1010,26 @@
         };
 
         // --- THEME ---
-        window.toggleTheme = () => {
+        window.toggleTheme = async () => {
+            let newTheme = 'light';
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
                 const icon = document.querySelector('#theme-toggle i');
                 if(icon) icon.className = 'fas fa-moon';
+                newTheme = 'light';
             } else {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
                 const icon = document.querySelector('#theme-toggle i');
                 if(icon) icon.className = 'fas fa-sun';
+                newTheme = 'dark';
+            }
+            
+            if (userId) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', userId), { theme: newTheme }, { merge: true });
+                } catch(e) { console.error("Error saving theme preference:", e); }
             }
         };
 
@@ -1004,7 +1060,7 @@
                 container.classList.remove('hidden');
                 list.innerHTML = recents.map(s => {
                     const parts = s.split(' > ');
-                    return `<button onclick="document.getElementById('from').value='${parts[0]}'; document.getElementById('to').value='${parts[1]}'" class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs text-slate-600 dark:text-slate-300 hover:bg-sky-100 hover:text-brand-primary transition-colors">${s}</button>`;
+                    return `<button onclick="window.switchSearchTab('flights'); document.getElementById('from').value='${parts[0]}'; document.getElementById('to').value='${parts[1]}'" class="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-xs text-slate-600 dark:text-slate-300 hover:bg-sky-100 hover:text-brand-primary transition-colors">${s}</button>`;
                 }).join('');
             }
         };
@@ -1022,6 +1078,21 @@
                 date: document.getElementById('departure').value,
                 pax: document.getElementById('adults-count').value
             };
+            sessionStorage.setItem('skywings_current_search', JSON.stringify(State.currentSearch));
+            
+            if (State.activeTab === 'flights') {
+                const from = document.getElementById('from').value;
+                const to = document.getElementById('to').value;
+                if(from && to) {
+                    const recents = JSON.parse(localStorage.getItem('skywings_recents') || '[]');
+                    const entry = `${from} > ${to}`;
+                    if(!recents.includes(entry)) {
+                        recents.unshift(entry);
+                        localStorage.setItem('skywings_recents', JSON.stringify(recents.slice(0, 5)));
+                        window.renderRecentSearches();
+                    }
+                }
+            }
 
             setTimeout(() => {
                 loader.classList.add('hidden');
@@ -1034,9 +1105,10 @@
                     let results = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
 
                     if (results.length === 0) {
+                        const today = new Date().toISOString().split('T')[0];
                         results = [
-                            { id: 'gen_1'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from, to, date: document.getElementById('departure').value, dep: '08:00', arr: '11:00', dur: '3h', price: 250, status: 'On Time' },
-                            { id: 'gen_2'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from, to, date: document.getElementById('departure').value, dep: '14:00', arr: '17:00', dur: '3h', price: 320, status: 'On Time' },
+                            { id: 'gen_1'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from, to, date: document.getElementById('departure').value || today, dep: '08:00', arr: '11:00', dur: '3h', price: 250, status: 'On Time' },
+                            { id: 'gen_2'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from, to, date: document.getElementById('departure').value || today, dep: '14:00', arr: '17:00', dur: '3h', price: 320, status: 'On Time' },
                         ];
                     }
                     State.lastSearchResults = results;
@@ -1078,6 +1150,7 @@
                         </div>
                         <div><div class="text-xl font-bold text-brand-dark dark:text-white">${f.arr}</div><div class="text-xs text-slate-500 uppercase">${f.to.split('(')[0]}</div></div>
                     </div>
+                    ${f.logoUrl ? `<div class="hidden md:block"><img src="${f.logoUrl}" class="w-12 h-12 object-contain"></div>` : ''}
                     <div class="text-center w-full md:w-auto">
                         <div class="text-2xl font-bold text-brand-primary mb-2">$${f.price}</div>
                         <button onclick="initBooking('${f.id}')" class="bg-brand-primary text-white px-6 py-2 rounded-lg font-bold w-full hover:bg-sky-600 transition-colors">Select</button>
@@ -1158,6 +1231,7 @@
             
             State.selectedItem = item;
             State.activeSeats = []; // Reset for flights
+            try { sessionStorage.setItem('skywings_selected_item', JSON.stringify(item)); } catch(e){}
             
             const formContainer = document.getElementById('passenger-forms');
             const selectionStep = document.getElementById('step-selection-container');
@@ -1170,7 +1244,14 @@
                 selectionStep.classList.remove('hidden');
                 
                 // Flight Form
-                const pax = parseInt(State.currentSearch.pax || 1);
+                let pax = parseInt(State.currentSearch.pax || 1);
+                if (!State.currentSearch.pax) {
+                    try {
+                        const saved = JSON.parse(sessionStorage.getItem('skywings_current_search'));
+                        if (saved && saved.pax) { pax = parseInt(saved.pax); State.currentSearch = saved; }
+                    } catch(e){}
+                }
+
                 const savedPax = JSON.parse(localStorage.getItem('skywings_saved_passengers') || '[]');
                 
                 if(savedPax.length > 0) {
@@ -1209,12 +1290,23 @@
 
         window.processBooking = async () => {
             if(!userId) return window.showToast("Auth initializing...", "error");
+            
+            // Attempt to restore session if selectedItem is missing (e.g. after refresh)
+            if(!State.selectedItem) {
+                try { State.selectedItem = JSON.parse(sessionStorage.getItem('skywings_selected_item')); } catch(e){}
+            }
             if(!State.selectedItem) { window.navigateTo('home'); return window.showToast("Session expired", "error"); }
             
             const nameInputs = document.querySelectorAll('.pax-name');
             let names = [];
             nameInputs.forEach(input => { if(input.value) names.push(input.value); });
             if(names.length === 0) return window.showToast("Enter Name", "error");
+            
+            if(names.length > 0) {
+                const saved = JSON.parse(localStorage.getItem('skywings_saved_passengers') || '[]');
+                const newSaved = [...new Set([...names, ...saved])].slice(0, 5);
+                localStorage.setItem('skywings_saved_passengers', JSON.stringify(newSaved));
+            }
 
             if(State.selectedItem.type === 'flight' && State.activeSeats.length !== names.length) {
                 return window.showToast("Select seats matching passenger count", "error");
@@ -1255,6 +1347,7 @@
                 renderTicket(booking);
                 window.navigateTo('confirmation');
                 window.showToast("Booking Successful!", "success");
+                window.sendEmailNotification(booking);
             } catch(e) { console.error(e); window.showToast("Failed", "error"); }
         };
 
@@ -1270,8 +1363,8 @@
                         <div class="font-mono text-xl">${b.ref}</div>
                     </div>
                     <div class="ticket-body">
-                        <h2 class="text-3xl font-bold text-brand-dark mb-2">${b.details.name}</h2>
-                        <p class="text-slate-500 mb-6"><i class="fas fa-map-marker-alt"></i> ${b.details.city}</p>
+                        <h2 class="text-3xl font-bold text-brand-dark mb-2">${b.details?.name || 'Hotel'}</h2>
+                        <p class="text-slate-500 mb-6"><i class="fas fa-map-marker-alt"></i> ${b.details?.city || 'City'}</p>
                         <div class="grid grid-cols-2 gap-6">
                             <div><div class="t-label">Guest</div><div class="t-val">${b.paxName}</div></div>
                             <div><div class="t-label">Check-in</div><div class="t-val">3:00 PM</div></div>
@@ -1290,8 +1383,8 @@
                     <div class="ticket-body">
                         <div class="flex justify-between items-start mb-6">
                             <div>
-                                <h2 class="text-3xl font-bold text-brand-dark">${b.details.name}</h2>
-                                <p class="text-slate-500">${b.details.category} Class</p>
+                                <h2 class="text-3xl font-bold text-brand-dark">${b.details?.name || 'Car'}</h2>
+                                <p class="text-slate-500">${b.details?.category || 'Standard'} Class</p>
                             </div>
                             <i class="fas fa-car text-4xl text-slate-300"></i>
                         </div>
@@ -1306,8 +1399,8 @@
             } else {
                 // Flight Ticket (Existing Logic)
                 const passengerName = b.paxName;
-                const gate = b.details.gate || 'TBD';
-                const terminal = b.details.terminal || 'TBD';
+                const gate = b.details?.gate || 'TBD';
+                const terminal = b.details?.terminal || 'TBD';
                 const tktNo = '214 ' + Math.floor(Math.random()*10000000000);
                 
                 el.innerHTML = `
@@ -1325,16 +1418,16 @@
                             <div class="w-1/2 text-right"><div class="t-label">Ticket Number</div><div class="t-val font-mono">${tktNo}</div></div>
                         </div>
                         <div class="ticket-row items-center">
-                            <div class="w-1/3"><div class="t-label">Origin</div><div class="t-val-xl">${b.details.from.substring(0,3).toUpperCase()}</div><div class="text-sm text-slate-500 font-medium">${b.details.from.split('(')[0]}</div></div>
-                            <div class="w-1/3 text-center"><i class="fas fa-plane text-brand-primary text-2xl"></i><div class="text-xs text-slate-400 font-medium mt-1">${b.details.dur}</div></div>
-                            <div class="w-1/3 text-right"><div class="t-label">Destination</div><div class="t-val-xl">${b.details.to.substring(0,3).toUpperCase()}</div><div class="text-sm text-slate-500 font-medium">${b.details.to.split('(')[0]}</div></div>
+                            <div class="w-1/3"><div class="t-label">Origin</div><div class="t-val-xl">${(b.details?.from || 'UNK').substring(0,3).toUpperCase()}</div><div class="text-sm text-slate-500 font-medium">${(b.details?.from || '').split('(')[0]}</div></div>
+                            <div class="w-1/3 text-center"><i class="fas fa-plane text-brand-primary text-2xl"></i><div class="text-xs text-slate-400 font-medium mt-1">${b.details?.dur || ''}</div></div>
+                            <div class="w-1/3 text-right"><div class="t-label">Destination</div><div class="t-val-xl">${(b.details?.to || 'UNK').substring(0,3).toUpperCase()}</div><div class="text-sm text-slate-500 font-medium">${(b.details?.to || '').split('(')[0]}</div></div>
                         </div>
                         <div class="ticket-section-title"><i class="fas fa-info-circle"></i> Flight Details</div>
                         <div class="grid grid-cols-4 gap-6 mb-6">
-                            <div><div class="t-label">Flight</div><div class="t-val">${b.details.number}</div></div>
-                            <div><div class="t-label">Date</div><div class="t-val">${b.details.date}</div></div>
+                            <div><div class="t-label">Flight</div><div class="t-val">${b.details?.number || 'N/A'}</div></div>
+                            <div><div class="t-label">Date</div><div class="t-val">${b.details?.date || 'N/A'}</div></div>
                             <div><div class="t-label">Class</div><div class="t-val">Economy (Y)</div></div>
-                            <div><div class="t-label">Seat(s)</div><div class="t-val text-brand-primary">${b.seats.join(', ')}</div></div>
+                            <div><div class="t-label">Seat(s)</div><div class="t-val text-brand-primary">${(b.seats || []).join(', ')}</div></div>
                         </div>
                     </div>
                     <div class="ticket-footer bg-slate-50 border-t border-slate-100 p-6">
@@ -1347,6 +1440,29 @@
             }
         }
 
+        window.sendEmailNotification = (booking) => {
+            // Simulation of email sending service
+            console.log(`[Email Service] Sending confirmation to ${booking.email} for Ref: ${booking.ref}`);
+            
+            if (window.emailjs) {
+                const templateParams = {
+                    to_email: booking.email,
+                    to_name: booking.paxName,
+                    booking_ref: booking.ref,
+                    flight_info: booking.details.name || booking.flight?.number || 'N/A',
+                    total_price: booking.total
+                };
+                
+                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+                    .then(() => window.showToast(`Confirmation email sent to ${booking.email}`, "success"))
+                    .catch((err) => { console.error(err); window.showToast("Email failed to send", "error"); });
+            } else {
+                setTimeout(() => {
+                    window.showToast(`Confirmation email sent to ${booking.email} (Simulated)`, "success");
+                }, 2000);
+            }
+        };
+
         // --- CHAT, MAP, ADMIN, INIT ---
         window.toggleChat = () => document.getElementById('chat-window').classList.toggle('hidden');
         window.handleChat = (e) => { e.preventDefault(); const i = document.getElementById('chat-input'); if(i.value) { const c = document.getElementById('chat-messages'); c.innerHTML += `<div class="flex gap-2 flex-row-reverse"><div class="bg-brand-primary text-white p-3 rounded-xl text-sm">${i.value}</div></div>`; i.value=''; setTimeout(()=>{c.innerHTML+=`<div class="flex gap-2"><div class="bg-white p-3 rounded-xl text-sm border">An agent will join shortly.</div></div>`; c.scrollTop=c.scrollHeight;}, 1000); }};
@@ -1354,8 +1470,8 @@
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
         window.swapAirports = () => { const f = document.getElementById('from'), t = document.getElementById('to'); [f.value, t.value] = [t.value, f.value]; };
         window.logoutAdmin = () => { State.isAdminLoggedIn = false; window.navigateTo('home'); window.showToast("Logged out", "info"); };
-        window.deleteDocItem = async (c, id) => { if(confirm("Delete?")) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', c), id); } };
-        window.checkUrlParams = () => { const p = new URLSearchParams(window.location.search); if(p.get('track')) { State.autoTrackRef=p.get('track'); navigateTo('tracking'); document.getElementById('track-input').value=p.get('track'); }};
+        window.deleteDocItem = async (c, id) => { if(confirm("Delete?")) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', c, id)); } };
+        window.checkUrlParams = () => { const p = new URLSearchParams(window.location.search); if(p.get('track')) { State.autoTrackRef=p.get('track'); window.navigateTo('tracking'); document.getElementById('track-input').value=p.get('track'); }};
         
         window.generateSeatMap = () => {
             const grid = document.getElementById('seat-grid');
@@ -1395,7 +1511,13 @@
                 State.activeSeats = State.activeSeats.filter(x => x !== id);
                 if(btn) btn.classList.remove('selected');
             } else {
-                const pax = parseInt(State.currentSearch.pax || 1);
+                let pax = parseInt(State.currentSearch.pax || 1);
+                if (!State.currentSearch.pax) {
+                    try {
+                        const saved = JSON.parse(sessionStorage.getItem('skywings_current_search'));
+                        if (saved && saved.pax) pax = parseInt(saved.pax);
+                    } catch(e){}
+                }
                 if(State.activeSeats.length >= pax) return window.showToast(`Max ${pax} seats`, 'error');
                 State.activeSeats.push(id);
                 if(btn) btn.classList.add('selected');
@@ -1422,9 +1544,9 @@
              } else {
                  document.getElementById('no-bookings').classList.add('hidden');
                  list.innerHTML = State.bookings.map(b => {
-                    let icon = 'plane', title = b.flight?.number || b.details?.name;
-                    if(b.type === 'hotel') { icon = 'hotel'; title = b.details.name; }
-                    if(b.type === 'car') { icon = 'car'; title = b.details.name; }
+                    let icon = 'plane', title = b.flight?.number || b.details?.name || 'Booking';
+                    if(b.type === 'hotel') { icon = 'hotel'; title = b.details?.name || 'Hotel'; }
+                    if(b.type === 'car') { icon = 'car'; title = b.details?.name || 'Car'; }
                     
                     return `
                     <div class="bg-white dark:bg-slate-800 p-4 border rounded-xl shadow-sm flex justify-between items-center dark:border-slate-700">
@@ -1465,7 +1587,8 @@
             window.scrollTo(0,0);
             if(viewId === 'manage') window.renderBookings();
             if(viewId === 'admin') window.renderAdminPanel();
-            if(viewId === 'home') renderRecentSearches();
+            if(viewId === 'home') window.renderRecentSearches();
+            if(viewId === 'tracking' && State.map) { setTimeout(() => State.map.invalidateSize(), 200); }
         };
 
         const startDataSync = () => {
@@ -1488,6 +1611,7 @@
                 snap.forEach(d => list.push({id: d.id, ...d.data()}));
                 State.allBookings = list;
                 if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
+                if(State.autoTrackRef) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
             });
             
             // SYSTEM ALERTS - FIXED PATH (6 segments)
@@ -1501,6 +1625,12 @@
 
         // NEW: Send Broadcast Function
         window.sendBroadcast = async () => {
+            // Restriction: Only specific User IDs or Admin Session
+            const ALLOWED_IDS = ['admin_user_id_1', 'admin_user_id_2']; // Replace with actual UIDs
+            if (!State.isAdminLoggedIn && !ALLOWED_IDS.includes(userId)) {
+                return window.showToast("Unauthorized: Only Admins can broadcast", "error");
+            }
+
             const msg = document.getElementById('broadcast-msg').value;
             if(!msg) return;
             try {
@@ -1608,6 +1738,11 @@
                     document.getElementById('adm-terminal').value = f.terminal || '';
                     document.getElementById('adm-baggage').value = f.baggage || '';
                     document.getElementById('adm-tail').value = f.tail || '';
+                    document.getElementById('adm-altitude').value = f.altitude || '';
+                    document.getElementById('adm-speed').value = f.speed || '';
+                    document.getElementById('adm-lat').value = f.currentLat || '';
+                    document.getElementById('adm-lng').value = f.currentLng || '';
+                    document.getElementById('adm-logo-url').value = f.logoUrl || '';
                 }
             } else {
                 document.getElementById('edit-id').value = '';
@@ -1666,6 +1801,17 @@
                 adminFlightForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const id = document.getElementById('edit-id').value;
+                    
+                    // Handle Logo Upload
+                    let logoUrl = document.getElementById('adm-logo-url').value;
+                    const fileInput = document.getElementById('adm-logo-file');
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+                        const storageRef = sRef(storage, `airline_logos/${Date.now()}_${file.name}`);
+                        await uploadBytes(storageRef, file);
+                        logoUrl = await getDownloadURL(storageRef);
+                    }
+
                     const data = {
                         airline: document.getElementById('adm-airline').value, 
                         number: document.getElementById('adm-number').value,
@@ -1681,7 +1827,12 @@
                         gate: document.getElementById('adm-gate').value,
                         terminal: document.getElementById('adm-terminal').value,
                         baggage: document.getElementById('adm-baggage').value,
-                        tail: document.getElementById('adm-tail').value
+                        tail: document.getElementById('adm-tail').value,
+                        altitude: document.getElementById('adm-altitude').value,
+                        speed: document.getElementById('adm-speed').value,
+                        currentLat: document.getElementById('adm-lat').value,
+                        currentLng: document.getElementById('adm-lng').value,
+                        logoUrl: logoUrl
                     };
                     try {
                         if(id) { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'flights', id), data); window.showToast("Updated", "success"); } 
@@ -1718,16 +1869,28 @@
             }
         }
 
-        window.initMap = (fromCode, toCode) => {
+        window.initMap = (fromCode, toCode, currentLat, currentLng) => {
             const from = airportCoords[fromCode] || [40.7128, -74.0060]; // Default NYC
             const to = airportCoords[toCode] || [51.5074, -0.1278]; // Default London
 
             const container = document.getElementById('map-container');
             if(!container) return;
             
+            // If map exists, just update marker
+            if(State.map && State.planeMarker) {
+                if(currentLat && currentLng) {
+                    const newPos = [parseFloat(currentLat), parseFloat(currentLng)];
+                    State.planeMarker.setLatLng(newPos);
+                    // Optional: Pan map to plane if needed, but might be annoying if user is panning
+                    // State.map.panTo(newPos); 
+                }
+                return;
+            }
+
             if(State.map) {
                 State.map.remove();
                 State.map = null;
+                State.planeMarker = null;
             }
 
             container.innerHTML = '<div id="map" class="w-full h-full z-0"></div>';
@@ -1755,13 +1918,16 @@
             L.marker(from, {icon}).addTo(State.map);
             L.marker(to, {icon}).addTo(State.map);
 
+            // Determine plane position
+            const centers = (currentLat && currentLng) ? [parseFloat(currentLat), parseFloat(currentLng)] : [(from[0] + to[0])/2, (from[1] + to[1])/2];
+
             const planeIcon = L.divIcon({
                 className: 'plane-icon',
                 html: '<i class="fas fa-plane text-brand-primary text-2xl transform rotate-45 drop-shadow-[0_0_10px_rgba(14,165,233,0.8)]"></i>',
                 iconSize: [24, 24],
                 iconAnchor: [12, 12]
             });
-            L.marker(center, {icon: planeIcon}).addTo(State.map);
+            State.planeMarker = L.marker(center, {icon: planeIcon}).addTo(State.map);
         };
 
         window.handleTrack = () => {
@@ -1769,12 +1935,27 @@
             const resDiv = document.getElementById('tracking-result-container');
             if(!input) return window.showToast("Enter reference or flight number", "error");
             
-            resDiv.classList.remove('hidden');
-            resDiv.innerHTML = '<div class="py-12 text-center"><i class="fas fa-circle-notch fa-spin text-3xl text-brand-primary"></i><p class="mt-4 text-slate-500">Acquiring global satellite link...</p></div>';
+            // Check if we are updating an existing view
+            const isUpdate = !resDiv.classList.contains('hidden') && document.getElementById('track-flight-number') && document.getElementById('track-flight-number').innerText === input;
 
-            setTimeout(() => {
+            // FIX: If we are NOT updating (i.e., new search), we must clear the old map instance
+            // because the DOM element it is attached to is about to be destroyed.
+            if (!isUpdate && State.map) {
+                State.map.remove();
+                State.map = null;
+                State.planeMarker = null;
+            }
+
+            const render = () => {
                 const booking = State.allBookings.find(b => b.ref == input) || State.bookings.find(b => b.ref == input);
-                let flight = booking ? booking.flight : State.flights.find(f => f.number == input);
+                
+                // Prefer live flight data from State.flights to ensure real-time updates (coords, speed, etc.)
+                let flight = null;
+                if (booking && booking.flight && booking.flight.number) {
+                    flight = State.flights.find(f => f.number === booking.flight.number) || booking.flight;
+                } else {
+                    flight = State.flights.find(f => f.number == input);
+                }
                 
                 if(!flight) {
                     resDiv.innerHTML = '<div class="p-8 text-center text-slate-500 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl">Flight not found. Please check your reference number.</div>';
@@ -1785,8 +1966,8 @@
                 const statusColor = isDelayed ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600';
                 
                 // Simulated Telemetry
-                const altitude = Math.floor(Math.random() * (38000 - 30000) + 30000).toLocaleString();
-                const speed = Math.floor(Math.random() * (600 - 450) + 450);
+                const altitude = flight.altitude ? Number(flight.altitude).toLocaleString() : Math.floor(Math.random() * (38000 - 30000) + 30000).toLocaleString();
+                const speed = flight.speed ? Number(flight.speed) : Math.floor(Math.random() * (600 - 450) + 450);
                 const remaining = flight.dur || "3h 20m";
                 
                 // Fields
@@ -1807,6 +1988,17 @@
                 const isTakeoff = currentIdx >= stages.indexOf('Take-off');
                 const isLanded = currentIdx >= stages.indexOf('Landed');
 
+                // If updating, just update DOM elements and Map
+                if (isUpdate) {
+                    if(document.getElementById('track-alt')) document.getElementById('track-alt').innerHTML = `${altitude} <span class="text-xs">FT</span>`;
+                    if(document.getElementById('track-spd')) document.getElementById('track-spd').innerHTML = `${speed} <span class="text-xs">KTS</span>`;
+                    if(document.getElementById('track-status')) document.getElementById('track-status').innerText = status;
+                    if(document.getElementById('track-status')) document.getElementById('track-status').className = `${statusColor} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider`;
+                    
+                    window.initMap(fromCode, toCode, flight.currentLat, flight.currentLng);
+                    return;
+                }
+
                 resDiv.innerHTML = `
                     <div class="space-y-6 animate-fade-in">
                         <!-- Header Card -->
@@ -1815,8 +2007,9 @@
                             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 relative z-10">
                                 <div>
                                     <div class="flex items-center gap-3 mb-1">
-                                        <h3 class="font-bold text-3xl text-brand-dark dark:text-white tracking-tight">${flight.number}</h3>
-                                        <span class="${statusColor} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">${status}</span>
+                                        ${flight.logoUrl ? `<img src="${flight.logoUrl}" class="w-10 h-10 object-contain bg-white rounded-md p-1">` : ''}
+                                        <h3 class="font-bold text-3xl text-brand-dark dark:text-white tracking-tight" id="track-flight-number">${flight.number}</h3>
+                                        <span id="track-status" class="${statusColor} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">${status}</span>
                                     </div>
                                     <p class="text-slate-500 dark:text-slate-400">Operated by SkyWings Airlines</p>
                                 </div>
@@ -1854,11 +2047,11 @@
                                 <div class="absolute top-4 left-4 right-4 z-10 grid grid-cols-3 gap-2">
                                     <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700">
                                         <div class="text-[10px] text-slate-400 mb-1 tracking-wider">ALTITUDE</div>
-                                        <div class="text-lg font-mono font-bold text-sky-400">${altitude} <span class="text-xs">FT</span></div>
+                                        <div class="text-lg font-mono font-bold text-sky-400" id="track-alt">${altitude} <span class="text-xs">FT</span></div>
                                     </div>
                                     <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700">
                                         <div class="text-[10px] text-slate-400 mb-1 tracking-wider">SPEED</div>
-                                        <div class="text-lg font-mono font-bold text-sky-400">${speed} <span class="text-xs">KTS</span></div>
+                                        <div class="text-lg font-mono font-bold text-sky-400" id="track-spd">${speed} <span class="text-xs">KTS</span></div>
                                     </div>
                                     <div class="bg-slate-900/80 backdrop-blur-md p-3 rounded-lg border border-slate-700">
                                         <div class="text-[10px] text-slate-400 mb-1 tracking-wider">REMAINING</div>
@@ -1908,21 +2101,54 @@
                     </div>`;
                 
                 // Initialize Map after DOM update
-                setTimeout(() => window.initMap(fromCode, toCode), 100);
+                setTimeout(() => window.initMap(fromCode, toCode, flight.currentLat, flight.currentLng), 100);
+            };
 
-            }, 1200);
+            if (!isUpdate) {
+                resDiv.classList.remove('hidden');
+                resDiv.innerHTML = '<div class="py-12 text-center"><i class="fas fa-circle-notch fa-spin text-3xl text-brand-primary"></i><p class="mt-4 text-slate-500">Acquiring global satellite link...</p></div>';
+                setTimeout(render, 1200);
+            } else {
+                render();
+            }
         };
 
         const initAuth = async () => {
             try { if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token); else await signInAnonymously(auth); } catch (e) { await signInAnonymously(auth); }
-            onAuthStateChanged(auth, u => {
+            onAuthStateChanged(auth, async u => {
                 if (u) {
                     userId = u.uid;
                     startDataSync();
-                    window.toggleTheme(); 
+                    
+                    // Load Theme Preference
+                    try {
+                        // Sync UI with LocalStorage first (handled by head script, but ensure icon is correct)
+                        const localTheme = localStorage.getItem('theme');
+                        const icon = document.querySelector('#theme-toggle i');
+                        if (localTheme === 'dark' || document.documentElement.classList.contains('dark')) {
+                            if(icon) icon.className = 'fas fa-sun';
+                        } else {
+                            if(icon) icon.className = 'fas fa-moon';
+                        }
+
+                        const userDoc = await getDoc(doc(db, 'artifacts', appId, 'users', userId));
+                        if (userDoc.exists() && userDoc.data().theme) {
+                            const theme = userDoc.data().theme;
+                            if (theme === 'dark') {
+                                document.documentElement.classList.add('dark');
+                                localStorage.setItem('theme', 'dark');
+                                if(icon) icon.className = 'fas fa-sun';
+                            } else {
+                                document.documentElement.classList.remove('dark');
+                                localStorage.setItem('theme', 'light');
+                                if(icon) icon.className = 'fas fa-moon';
+                            }
+                        }
+                    } catch(e) { console.error("Theme sync error", e); }
+                    
                     setupEventListeners(); 
-                    renderRecentSearches();
-                    checkUrlParams();
+                    window.renderRecentSearches();
+                    window.checkUrlParams();
                     const today = new Date().toISOString().split('T')[0];
                     if(document.getElementById('departure')) document.getElementById('departure').value = today;
                 }
