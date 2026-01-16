@@ -1,6 +1,6 @@
 [build]
   base = "."
-  command = "echo 'Build complete'"
+  command = "rm -rf node_modules package-lock.json && npm install"
   publish = "public"
   functions = "netlify/functions"
 

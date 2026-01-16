@@ -6,7 +6,7 @@ service cloud.firestore {
       
       // SECURITY: Only allow specific UIDs to perform Admin actions
       function isAdmin() {
-        return request.auth != null && request.auth.uid in ['oLWh5i0EU1NYGzWtjndw9HjizO53'];
+        return request.auth != null && request.auth.uid in ['R8lBIGKnsGZSmAF8NTnKs9hjVu52'];
       }
 
       // FLIGHTS: Publicly readable, writable by authenticated users (Admins)

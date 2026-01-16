@@ -1232,9 +1232,8 @@
                             renderResultsList(results);
                         })
                         .catch(e => {
-                            console.error("Search failed", e);
+                            console.warn("Search API unavailable, using local fallback", e);
                             loader.classList.add('hidden');
-                            window.showToast("Search failed, showing cached data", "error");
                             // Fallback to local filter
                             const norm = s => s.toLowerCase().trim();
                             let localResults = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
@@ -1873,7 +1872,7 @@
                 if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
                 console.log(`Loaded ${list.length} flights from Neon SQL`);
             } catch (e) { 
-                console.warn("SQL Fetch failed, falling back to Firestore:", e);
+                console.log("SQL Fetch failed (Offline/Fallback Mode):", e);
                 // Fallback to Firestore if SQL fails
                 try {
                     const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'flights'));
