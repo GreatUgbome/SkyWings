@@ -1239,8 +1239,23 @@
                             if (results.length === 0) {
                                 // Fallback / Mock if DB empty
                                 const today = new Date().toISOString().split('T')[0];
+                                const fNum = `SKW${Math.floor(Math.random()*800+100)}`;
                                 results = [
-                                    { id: 'gen_1'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from: from||'New York', to: to||'London', date: document.getElementById('departure').value || today, dep: '08:00', arr: '11:00', dur: '3h', price: 250, status: 'On Time' },
+                                    { 
+                                        id: 'gen_1'+Date.now(), 
+                                        type:'flight', 
+                                        airline: 'SkyWings', 
+                                        flightNumber: fNum,
+                                        number: fNum, 
+                                        from: from||'New York', 
+                                        to: to||'London', 
+                                        date: document.getElementById('departure').value || today, 
+                                        departure: { time: '08:00', city: from||'New York' },
+                                        arrival: { time: '11:00', city: to||'London' },
+                                        duration: '3h 00m',
+                                        price: 250, 
+                                        status: 'On Time' 
+                                    },
                                 ];
                             }
                             if (results.length > 0) {
@@ -1258,8 +1273,23 @@
                                 let localResults = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
                                 if (localResults.length === 0) {
                                     const today = new Date().toISOString().split('T')[0];
+                                    const fNum = `SKW${Math.floor(Math.random()*800+100)}`;
                                     localResults = [
-                                        { id: 'gen_1'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from: from||'New York', to: to||'London', date: document.getElementById('departure').value || today, dep: '08:00', arr: '11:00', dur: '3h', price: 250, status: 'On Time' },
+                                        { 
+                                            id: 'gen_1'+Date.now(), 
+                                            type:'flight', 
+                                            airline: 'SkyWings', 
+                                            flightNumber: fNum,
+                                            number: fNum, // Compat
+                                            from: from||'New York', 
+                                            to: to||'London', 
+                                            date: document.getElementById('departure').value || today, 
+                                            departure: { time: '08:00', city: from||'New York' },
+                                            arrival: { time: '11:00', city: to||'London' },
+                                            duration: '3h 00m',
+                                            price: 250, 
+                                            status: 'On Time' 
+                                        },
                                     ];
                                 }
                                 State.lastSearchResults = localResults;
@@ -1532,6 +1562,14 @@
                 const pointsChange = earnedPoints - pointsUsed;
                 await setDoc(doc(db, 'artifacts', appId, 'users', userId), { points: increment(pointsChange) }, { merge: true });
                 
+                // 3. Save Public Tracking Info (Reference -> Flight Map)
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tracking', ref), {
+                    flightNumber: booking.flight.number || booking.flight.flightNumber,
+                    ref: ref,
+                    status: 'Confirmed',
+                    timestamp: Date.now()
+                });
+
                 // NEW: Save to SQL via Netlify Function
                 try {
                     const sqlRes = await fetch('/.netlify/functions/create-booking', {
@@ -2095,6 +2133,7 @@
                 snap.forEach(d => list.push({id: d.id, ...d.data()}));
                 State.flights = list;
                 if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
+                if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
             });
 
             onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), (snap) => {
@@ -2504,7 +2543,7 @@
             State.planeMarker = L.marker(center, {icon: planeIcon}).addTo(State.map);
         };
 
-        window.handleTrack = () => {
+        window.handleTrack = async () => {
             const input = document.getElementById('track-input').value.trim().toUpperCase();
             const resDiv = document.getElementById('tracking-result-container');
             State.autoTrackRef = input; // Register for real-time updates
@@ -2520,29 +2559,56 @@
                 State.planeMarker = null;
             }
 
-            const render = () => {
-                const booking = State.allBookings.find(b => b.ref == input) || State.bookings.find(b => b.ref == input);
-                
-                // Prefer live flight data from State.flights to ensure real-time updates (coords, speed, etc.)
-                let flight = null;
-                if (booking && booking.flight && booking.flight.number) {
-                    flight = State.flights.find(f => f.number === booking.flight.number) || booking.flight;
-                } else {
-                    flight = State.flights.find(f => f.number == input);
+            if (!isUpdate) {
+                resDiv.classList.remove('hidden');
+                resDiv.innerHTML = '<div class="py-12 text-center"><i class="fas fa-circle-notch fa-spin text-3xl text-brand-primary"></i><p class="mt-4 text-slate-500">Acquiring global satellite link...</p></div>';
+            }
+
+            // Lookup Logic
+            let flight = null;
+            let statusOverride = null;
+
+            // 1. Try Local State (Bookings)
+            const booking = State.allBookings.find(b => b.ref == input) || State.bookings.find(b => b.ref == input);
+            if (booking) {
+                const fNum = booking.flight ? (booking.flight.number || booking.flight.flightNumber) : null;
+                if (fNum) {
+                    flight = State.flights.find(f => f.number === fNum || f.flightNumber === fNum) || booking.flight;
                 }
-                
+                statusOverride = booking.status;
+            }
+
+            // 2. Try Local State (Direct Flight Number)
+            if (!flight) {
+                flight = State.flights.find(f => f.number == input || f.flightNumber == input);
+            }
+
+            // 3. Try Remote Tracking Lookup (For cross-device reference tracking)
+            if (!flight) {
+                try {
+                    const trackDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tracking', input));
+                    if (trackDoc.exists()) {
+                        const data = trackDoc.data();
+                        const fNum = data.flightNumber;
+                        flight = State.flights.find(f => f.number === fNum || f.flightNumber === fNum);
+                        statusOverride = data.status;
+                    }
+                } catch (e) { console.log("Remote tracking check failed", e); }
+            }
+
+            const render = () => {
                 if(!flight) {
                     resDiv.innerHTML = '<div class="p-8 text-center text-slate-500 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl">Flight not found. Please check your reference number.</div>';
                     return;
                 }
-                const status = flight.status || 'On Time';
+                const status = statusOverride || flight.status || 'On Time';
                 const isDelayed = status.toLowerCase() === 'delayed' || status.toLowerCase() === 'cancelled';
                 const statusColor = isDelayed ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600';
                 
                 // Simulated Telemetry
                 const altitude = flight.altitude ? Number(flight.altitude).toLocaleString() : Math.floor(Math.random() * (38000 - 30000) + 30000).toLocaleString();
                 const speed = flight.speed ? Number(flight.speed) : Math.floor(Math.random() * (600 - 450) + 450);
-                const remaining = flight.dur || "3h 20m";
+                const remaining = flight.dur || flight.duration || "3h 20m";
                 
                 // Fields
                 const gate = flight.gate || "TBD";
@@ -2606,15 +2672,15 @@
                                 <div>
                                     <div class="flex items-center gap-3 mb-1">
                                         ${flight.logoUrl ? `<img src="${flight.logoUrl}" class="w-10 h-10 object-contain bg-white rounded-md p-1">` : ''}
-                                        <h3 class="font-bold text-3xl text-brand-dark dark:text-white tracking-tight" id="track-flight-number">${flight.number}</h3>
+                                        <h3 class="font-bold text-3xl text-brand-dark dark:text-white tracking-tight" id="track-flight-number">${flight.number || flight.flightNumber}</h3>
                                         <span id="track-status" class="${statusColor} px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">${status}</span>
                                     </div>
                                     <p class="text-slate-500 dark:text-slate-400">Operated by SkyWings Airlines</p>
                                 </div>
                                 <div class="text-right mt-4 md:mt-0">
                                     <div class="text-sm text-slate-400 font-mono">ESTIMATED ARRIVAL</div>
-                                    <div class="text-2xl font-bold text-brand-dark dark:text-white">${flight.arr}</div>
-                                    <button onclick="shareViaWhatsApp('${flight.number}')" class="mt-2 text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold hover:bg-green-200 transition-colors flex items-center gap-1 ml-auto">
+                                    <div class="text-2xl font-bold text-brand-dark dark:text-white">${flight.arr || flight.arrival?.time}</div>
+                                    <button onclick="shareViaWhatsApp('${flight.number || flight.flightNumber}')" class="mt-2 text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold hover:bg-green-200 transition-colors flex items-center gap-1 ml-auto">
                                         <i class="fab fa-whatsapp"></i> Share Status
                                     </button>
                                 </div>
@@ -2623,7 +2689,7 @@
                             <div class="flex justify-between items-center text-lg relative z-10 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl">
                                 <div>
                                     <div class="font-bold text-2xl text-brand-dark dark:text-white">${flight.from.split('(')[0]}</div>
-                                    <div class="text-sm text-slate-400 font-mono">${flight.dep}</div>
+                                    <div class="text-sm text-slate-400 font-mono">${flight.dep || flight.departure?.time}</div>
                                 </div>
                                 <div class="flex-1 px-8 flex items-center justify-center">
                                     <div class="h-0.5 bg-slate-300 dark:bg-slate-600 w-full relative">
@@ -2634,7 +2700,7 @@
                                 </div>
                                 <div class="text-right">
                                     <div class="font-bold text-2xl text-brand-dark dark:text-white">${flight.to.split('(')[0]}</div>
-                                    <div class="text-sm text-slate-400 font-mono">${flight.arr}</div>
+                                    <div class="text-sm text-slate-400 font-mono">${flight.arr || flight.arrival?.time}</div>
                                 </div>
                             </div>
                         </div>
@@ -2684,13 +2750,7 @@
                 setTimeout(() => window.initMap(fromCode, toCode, flight.currentLat, flight.currentLng), 100);
             };
 
-            if (!isUpdate) {
-                resDiv.classList.remove('hidden');
-                resDiv.innerHTML = '<div class="py-12 text-center"><i class="fas fa-circle-notch fa-spin text-3xl text-brand-primary"></i><p class="mt-4 text-slate-500">Acquiring global satellite link...</p></div>';
-                setTimeout(render, 1200);
-            } else {
-                render();
-            }
+            render();
         };
 
         const initAuth = async () => {

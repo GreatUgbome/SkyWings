@@ -894,7 +894,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         // Initialize Firebase
         let firebaseConfig;
@@ -1231,11 +1231,14 @@
 
             // AUTO-GENERATE LOGIC
             if (results.length === 0) {
+                const fNum1 = `SKW${Math.floor(Math.random() * 900) + 100}`;
+                const fNum2 = `SKW${Math.floor(Math.random() * 900) + 100}`;
                 results = [
                     {
                         id: 'temp_' + Date.now(), 
                         airline: "SkyWings",
-                        flightNumber: `SKW${Math.floor(Math.random() * 900) + 100}`,
+                        flightNumber: fNum1,
+                        number: fNum1,
                         from: from,
                         to: to,
                         date: date,
@@ -1248,7 +1251,8 @@
                     {
                         id: 'temp_' + (Date.now() + 1),
                         airline: "SkyWings",
-                        flightNumber: `SKW${Math.floor(Math.random() * 900) + 100}`,
+                        flightNumber: fNum2,
+                        number: fNum2,
                         from: from,
                         to: to,
                         date: date,
@@ -1485,6 +1489,14 @@
                     bookedBy: userId // Store who booked it for admin ref
                 });
 
+                // 3. Save Public Tracking Info (Reference -> Flight Map)
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tracking', bookingRef), {
+                    flightNumber: booking.flight.flightNumber || booking.flight.number,
+                    ref: bookingRef,
+                    status: 'Confirmed',
+                    timestamp: Date.now()
+                });
+
                 document.getElementById('booking-ref').innerText = bookingRef;
                 renderConfirmationPass(booking);
                 navigateTo('confirmation');
@@ -1594,7 +1606,7 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        window.trackFlight = function() {
+        window.trackFlight = async function() {
             const input = document.getElementById('tracking-number').value.trim().toUpperCase();
             const resultDiv = document.getElementById('tracking-results');
             
@@ -1603,10 +1615,33 @@
             resultDiv.classList.remove('hidden');
             resultDiv.innerHTML = '<div class="loader-container"><div class="plane-loader"><i class="fas fa-plane"></i></div></div>';
 
-            setTimeout(() => {
-                // 1. Check Public Bookings First (Since we now save globally)
-                const booking = State.allBookings.find(b => b.ref.toUpperCase() === input) || 
-                                State.bookings.find(b => b.ref.toUpperCase() === input);
+            // 1. Check Local State (Bookings)
+            let booking = State.allBookings.find(b => b.ref.toUpperCase() === input) || 
+                          State.bookings.find(b => b.ref.toUpperCase() === input);
+            
+            let flight = null;
+            let status = "On Time";
+
+            // 2. If not found locally, try Public Tracking Collection (Global Lookup)
+            if (!booking) {
+                try {
+                    const trackDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tracking', input));
+                    if (trackDoc.exists()) {
+                        const data = trackDoc.data();
+                        const fNum = data.flightNumber;
+                        status = data.status || "Confirmed";
+                        
+                        // Find flight in public flights list (synced for everyone)
+                        flight = State.flights.find(f => f.number === fNum || f.flightNumber === fNum);
+                        
+                        if (flight) {
+                            booking = { ref: input, flight: flight, status: status };
+                        }
+                    }
+                } catch (e) { console.error("Tracking lookup failed", e); }
+            }
+
+            setTimeout(async () => {
                 
                 if (booking) {
                     const currentFlight = State.flights.find(f => f.id === booking.flight.id) || booking.flight;
@@ -1674,8 +1709,10 @@
                     return;
                 } 
 
-                // 2. Check Flights (Public)
-                const flight = State.flights.find(f => f.flightNumber && f.flightNumber.toUpperCase() === input);
+                // 3. Check Flights (Public) if no booking found
+                if (!flight) {
+                    flight = State.flights.find(f => (f.flightNumber && f.flightNumber.toUpperCase() === input) || (f.number && f.number.toUpperCase() === input));
+                }
 
                 if (flight) {
                     const status = flight.status || "On Time";
