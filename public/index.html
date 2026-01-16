@@ -1211,7 +1211,11 @@
                 try {
                     // Call Netlify Function (SQL Search)
                     fetch(`/.netlify/functions/get-flights?${params.toString()}`)
-                        .then(res => res.json())
+                        .then(async res => {
+                            const contentType = res.headers.get("content-type");
+                            if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Search endpoint unavailable");
+                            return res.json();
+                        })
                         .then(results => {
                             loader.classList.add('hidden');
                             if (results.error) throw new Error(results.error);
@@ -1488,11 +1492,12 @@
                 
                 // NEW: Save to SQL via Netlify Function
                 try {
-                    await fetch('/.netlify/functions/create-booking', {
+                    const sqlRes = await fetch('/.netlify/functions/create-booking', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(booking)
                     });
+                    if(!sqlRes.ok) throw new Error("SQL Error");
                 } catch(e) { console.error("SQL Backup Failed", e); }
 
                 document.getElementById('booking-ref').innerText = ref;
@@ -1770,6 +1775,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(State.flights)
                 });
+                const contentType = res.headers.get("content-type");
+                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Migration endpoint unavailable");
                 const result = await res.json();
                 if(res.ok) window.showToast(`Migrated ${result.migrated} flights!`, "success");
                 else throw new Error(result.error);
@@ -1781,6 +1788,8 @@
             window.showToast("Running SQL Migration...", "info");
             try {
                 const res = await fetch('/.netlify/functions/migrate-airline', { method: 'POST' });
+                const contentType = res.headers.get("content-type");
+                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Migration endpoint unavailable");
                 const data = await res.json();
                 if(res.ok) window.showToast(data.message, "success");
                 else throw new Error(data.error);
@@ -1792,7 +1801,8 @@
             window.showToast("Fetching from Neon SQL...", "info");
             try {
                 const res = await fetch('/.netlify/functions/get-bookings');
-                if (!res.ok) throw new Error("Failed to fetch");
+                const contentType = res.headers.get("content-type");
+                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Failed to fetch");
                 const bookings = await res.json();
                 
                 const tbody = document.getElementById('sql-bookings-list');
@@ -1817,7 +1827,8 @@
             if(!confirm("Are you sure you want to delete this booking from SQL?")) return;
             try {
                 const res = await fetch(`/.netlify/functions/delete-booking?id=${id}`, { method: 'DELETE' });
-                if(res.ok) {
+                const contentType = res.headers.get("content-type");
+                if(res.ok && contentType && contentType.includes("application/json")) {
                     window.showToast("Booking deleted", "success");
                     window.viewSQLBookings(); // Refresh list
                 } else {
@@ -1831,7 +1842,10 @@
             try {
                 // Call our new Netlify function
                 const res = await fetch('/.netlify/functions/get-flights');
-                if (!res.ok) throw new Error("Failed to load flights from SQL");
+                
+                // FIX: Check for valid JSON response to avoid SyntaxError on 404/500 HTML pages
+                const contentType = res.headers.get("content-type");
+                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("SQL Endpoint unavailable");
                 
                 const list = await res.json();
                 State.flights = list;
@@ -1840,7 +1854,19 @@
                 if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
                 if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
                 console.log(`Loaded ${list.length} flights from Neon SQL`);
-            } catch (e) { console.error(e); window.showToast("Could not load flight schedule", "error"); }
+            } catch (e) { 
+                console.warn("SQL Fetch failed, falling back to Firestore:", e);
+                // Fallback to Firestore if SQL fails
+                try {
+                    const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'flights'));
+                    const list = [];
+                    snap.forEach(d => list.push({id: d.id, ...d.data()}));
+                    if(list.length > 0) {
+                        State.flights = list;
+                        if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
+                    }
+                } catch(err) { console.error("Fallback failed", err); }
+            }
         };
         
         // Aircraft Configurations
