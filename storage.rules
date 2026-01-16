@@ -4,7 +4,7 @@ service firebase.storage {
     
     // Helper: Check if user is Admin (Sync UIDs with firestore.rules)
     function isAdmin() {
-      return request.auth != null && request.auth.uid in ['YOUR_ADMIN_UID_HERE'];
+      return request.auth != null && request.auth.uid in ['oLWh5i0EU1NYGzWtjndw9HjizO53'];
     }
 
     // Airline Logos: Publicly readable, Only Admins can upload
