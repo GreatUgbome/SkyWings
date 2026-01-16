@@ -6,6 +6,7 @@
     <title>SkyWings - Premium Flight Booking</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary: #0f172a; /* Sophisticated Dark Blue */
@@ -891,9 +892,9 @@
     </datalist>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
         // Initialize Firebase
         let firebaseConfig;
@@ -952,6 +953,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userId = user.uid;
+                console.log("Your User ID (Add to firestore.rules):", userId);
                 initApp();
             }
         });
@@ -1022,6 +1024,9 @@
                 if (document.getElementById('admin').classList.contains('active')) {
                     renderAdminPanel();
                 }
+            }, (error) => {
+                // Suppress permission denied errors for non-admins
+                if (error.code !== 'permission-denied') console.error("Admin data sync skipped:", error);
             });
         }
 
@@ -1573,6 +1578,20 @@
                     </div>
                 </div>
             `;
+        }
+
+        window.downloadTicketPDF = function() {
+            const element = document.querySelector('.boarding-pass-card');
+            if (!element) return showToast("No ticket found", "error");
+            
+            const opt = {
+                margin: 10,
+                filename: `SkyWings_Pass_${document.getElementById('booking-ref').innerText}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+            html2pdf().set(opt).from(element).save();
         }
 
         window.trackFlight = function() {

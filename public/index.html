@@ -11,11 +11,13 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <!-- EmailJS SDK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- html2pdf SDK -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script type="text/javascript">
         (function() {
-            emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your actual EmailJS Public Key
+            emailjs.init("user_AbCdEfGhIjKlMnOpQrSt"); // Example Public Key
         })();
     </script>
     <script>
@@ -271,8 +273,8 @@
 
                     <!-- FLIGHTS TAB -->
                     <div id="tab-flights" class="search-tab-content grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                        <!-- From -->
-                        <div class="md:col-span-3">
+                        <!-- From (Adjusted span) -->
+                        <div class="md:col-span-3 lg:col-span-3">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">From</label>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -289,8 +291,8 @@
                             </button>
                         </div>
 
-                        <!-- To -->
-                        <div class="md:col-span-3">
+                        <!-- To (Adjusted span) -->
+                        <div class="md:col-span-3 lg:col-span-3">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">To</label>
                             <div class="relative group">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -300,9 +302,9 @@
                             </div>
                         </div>
 
-                        <!-- Date & Pax -->
-                        <div class="md:col-span-3">
-                            <div class="grid grid-cols-2 gap-4">
+                        <!-- Date, Pax, Airline -->
+                        <div class="md:col-span-4 lg:col-span-4">
+                            <div class="grid grid-cols-3 gap-2">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Date</label>
                                     <input type="date" id="departure" class="block w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-brand-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary/50 dark:focus:bg-slate-600 font-semibold">
@@ -321,11 +323,15 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Airline</label>
+                                    <input type="text" id="airline-filter" class="block w-full px-3 py-3.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-brand-dark dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary/50 dark:focus:bg-slate-600 font-semibold text-sm" placeholder="Any">
+                                </div>
                             </div>
                         </div>
 
                         <!-- Search Button -->
-                        <div class="md:col-span-2">
+                        <div class="md:col-span-12 lg:col-span-1 mt-2 lg:mt-0">
                             <button id="search-flights" class="w-full bg-brand-primary hover:bg-sky-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-sky-200 hover:shadow-sky-300 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
                                 <i class="fas fa-search"></i> Search
                             </button>
@@ -629,6 +635,9 @@
                     <button onclick="openAdminModal()" class="bg-brand-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-sky-600 transition-colors shadow-sm flex items-center gap-2">
                         <i class="fas fa-plus"></i> Add Flight
                     </button>
+                    <button onclick="viewSQLBookings()" class="bg-teal-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-teal-700 transition-colors shadow-sm flex items-center gap-2"><i class="fas fa-server"></i> SQL Bookings</button>
+                    <button onclick="migrateToSQL()" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 transition-colors shadow-sm flex items-center gap-2"><i class="fas fa-database"></i> Sync SQL</button>
+                    <button onclick="runSchemaMigration()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2"><i class="fas fa-table"></i> Migrate DB</button>
                 </div>
             </div>
             
@@ -728,6 +737,9 @@
                 <div class="flex justify-center gap-4 mb-12">
                     <button onclick="window.print()" class="bg-brand-dark text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2">
                         <i class="fas fa-print"></i> Print Documents
+                    </button>
+                    <button onclick="emailTicketPDF()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg flex items-center gap-2">
+                        <i class="fas fa-envelope"></i> Email Ticket
                     </button>
                     <button onclick="downloadTicketPDF()" class="bg-slate-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2">
                         <i class="fas fa-file-pdf"></i> Download PDF
@@ -1000,6 +1012,24 @@
         </div>
     </div>
 
+    <!-- SQL Bookings Modal -->
+    <div id="sql-bookings-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[60] flex items-center justify-center">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 max-w-4xl w-full mx-4 border dark:border-slate-700 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-brand-dark dark:text-white">Neon SQL Bookings</h3>
+                <button onclick="closeModal('sql-bookings-modal')" class="text-slate-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                    <thead class="bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 uppercase font-bold text-xs">
+                        <tr><th class="px-4 py-2">Ref</th><th class="px-4 py-2">User ID</th><th class="px-4 py-2">Flight</th><th class="px-4 py-2">Created At</th><th class="px-4 py-2">Data</th><th class="px-4 py-2 text-right">Actions</th></tr>
+                    </thead>
+                    <tbody id="sql-bookings-list" class="divide-y divide-slate-100 dark:divide-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-auto pt-16 pb-8 no-print transition-colors duration-300">
         <!-- Footer content same as before -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1032,10 +1062,10 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
 
         // --- STATE & CONFIG ---
         const State = {
@@ -1174,26 +1204,54 @@
                 }
             }
 
-            setTimeout(() => {
-                loader.classList.add('hidden');
+            // Use Server-Side Search for Flights
+            if (State.activeTab === 'flights') {
+                const from = document.getElementById('from').value.trim();
+                const to = document.getElementById('to').value.trim();
+                const airline = document.getElementById('airline-filter').value.trim();
+                const maxPrice = document.getElementById('price-range').value;
                 
-                if (State.activeTab === 'flights') {
-                    const from = document.getElementById('from').value.trim();
-                    const to = document.getElementById('to').value.trim();
-                    
-                    const norm = s => s.toLowerCase().trim();
-                    let results = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
+                const params = new URLSearchParams();
+                if(from) params.append('from', from);
+                if(to) params.append('to', to);
+                if(airline) params.append('airline', airline);
+                if(maxPrice) params.append('maxPrice', maxPrice);
 
-                    if (results.length === 0) {
-                        const today = new Date().toISOString().split('T')[0];
-                        results = [
-                            { id: 'gen_1'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from, to, date: document.getElementById('departure').value || today, dep: '08:00', arr: '11:00', dur: '3h', price: 250, status: 'On Time' },
-                            { id: 'gen_2'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from, to, date: document.getElementById('departure').value || today, dep: '14:00', arr: '17:00', dur: '3h', price: 320, status: 'On Time' },
-                        ];
-                    }
-                    State.lastSearchResults = results;
-                    renderResultsList(results);
+                try {
+                    // Call Netlify Function (SQL Search)
+                    fetch(`/.netlify/functions/get-flights?${params.toString()}`)
+                        .then(res => res.json())
+                        .then(results => {
+                            loader.classList.add('hidden');
+                            if (results.error) throw new Error(results.error);
+                            
+                            if (results.length === 0) {
+                                // Fallback / Mock if DB empty
+                                const today = new Date().toISOString().split('T')[0];
+                                results = [
+                                    { id: 'gen_1'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from: from||'New York', to: to||'London', date: document.getElementById('departure').value || today, dep: '08:00', arr: '11:00', dur: '3h', price: 250, status: 'On Time' },
+                                ];
+                            }
+                            State.lastSearchResults = results;
+                            renderResultsList(results);
+                        })
+                        .catch(e => {
+                            console.error("Search failed", e);
+                            loader.classList.add('hidden');
+                            window.showToast("Search failed, showing cached data", "error");
+                            // Fallback to local filter
+                            const norm = s => s.toLowerCase().trim();
+                            let localResults = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
+                            renderResultsList(localResults);
+                        });
+                } catch(e) { console.error(e); }
                 
+            } else {
+                // Existing logic for Hotels/Cars (Mock)
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                if (State.activeTab === 'flights') {
+                    // ... (Removed old local logic)
                 } else if (State.activeTab === 'hotels') {
                     const dest = document.getElementById('hotel-dest').value;
                     const results = [
@@ -1214,7 +1272,8 @@
                     State.lastSearchResults = results;
                     renderCarResults(results);
                 }
-            }, 1000);
+                }, 1000);
+            }
         };
 
         function renderResultsList(results) {
@@ -1436,6 +1495,15 @@
                 const pointsChange = earnedPoints - pointsUsed;
                 await setDoc(doc(db, 'artifacts', appId, 'users', userId), { points: increment(pointsChange) }, { merge: true });
                 
+                // NEW: Save to SQL via Netlify Function
+                try {
+                    await fetch('/.netlify/functions/create-booking', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(booking)
+                    });
+                } catch(e) { console.error("SQL Backup Failed", e); }
+
                 document.getElementById('booking-ref').innerText = ref;
                 const baseUrl = window.location.href.split('?')[0];
                 const trackingUrl = State.selectedItem.type === 'flight' ? `${baseUrl}?track=${ref}` : '#';
@@ -1537,10 +1605,27 @@
                         <div class="flex justify-between items-end">
                             <div class="w-3/4 pr-8"><p class="text-[10px] text-slate-500 leading-relaxed">• Baggage Allowance: 1x23kg Checked Bag, 1x7kg Carry-on.<br>• Check-in closes 60 minutes before departure.</p></div>
                             <div class="w-1/4 flex justify-end"><div class="bp-barcode w-full h-12 opacity-70"></div></div>
+                            <div class="w-1/4 flex justify-end"><div id="qrcode-${b.ref}" class="opacity-90"></div></div>
                         </div>
                     </div>
                 </div>`;
             }
+            
+            // Generate QR Code
+            setTimeout(() => {
+                const qrContainer = document.getElementById(`qrcode-${b.ref}`);
+                if (qrContainer) {
+                    qrContainer.innerHTML = ''; // Clear previous
+                    new QRCode(qrContainer, {
+                        text: b.ref,
+                        width: 80,
+                        height: 80,
+                        colorDark : "#0f172a",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }
+            }, 100);
         }
 
         window.sendEmailNotification = (booking) => {
@@ -1556,7 +1641,7 @@
                     total_price: booking.total
                 };
                 
-                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+                emailjs.send('service_xyz123', 'template_abc456', templateParams)
                     .then(() => window.showToast(`Confirmation email sent to ${booking.email}`, "success"))
                     .catch((err) => { console.error(err); window.showToast("Email failed to send", "error"); });
             } else {
@@ -1567,15 +1652,107 @@
         };
 
         window.downloadTicketPDF = () => {
-            const element = document.querySelector('.boarding-pass-wrapper');
+            const source = document.querySelector('.boarding-pass-wrapper');
+            if (!source || !source.innerText.trim()) return window.showToast("No ticket found to download", "error");
+
+            // Create a dedicated container for PDF generation
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.position = 'fixed';
+            pdfContainer.style.top = '0';
+            pdfContainer.style.left = '0';
+            pdfContainer.style.width = '100%';
+            pdfContainer.style.height = '100%';
+            pdfContainer.style.zIndex = '9999';
+            pdfContainer.style.backgroundColor = 'white';
+            pdfContainer.style.display = 'flex';
+            pdfContainer.style.justifyContent = 'center';
+            pdfContainer.style.alignItems = 'flex-start';
+            pdfContainer.style.padding = '40px';
+            pdfContainer.style.overflow = 'hidden';
+
+            // Clone the ticket
+            const ticketClone = source.cloneNode(true);
+            ticketClone.style.transform = 'none';
+            ticketClone.style.margin = '0';
+            ticketClone.style.maxWidth = '800px';
+            ticketClone.style.width = '100%';
+            ticketClone.style.boxShadow = 'none';
+            
+            pdfContainer.appendChild(ticketClone);
+            document.body.appendChild(pdfContainer);
+
+            const refEl = document.getElementById('booking-ref');
+            const ref = refEl ? refEl.innerText : 'ticket';
+
             const opt = {
                 margin: 10,
-                filename: `SkyWings_Ticket_${document.getElementById('booking-ref').innerText}.pdf`,
+                filename: `SkyWings_Ticket_${ref}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1200 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+
+            window.showToast("Generating PDF...", "info");
+
+            setTimeout(() => {
+                html2pdf().set(opt).from(ticketClone).save()
+                    .then(() => {
+                        window.showToast("PDF Downloaded", "success");
+                        document.body.removeChild(pdfContainer);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        window.showToast("PDF Error", "error");
+                        if(document.body.contains(pdfContainer)) document.body.removeChild(pdfContainer);
+                    });
+            }, 500);
+        };
+
+        window.emailTicketPDF = async () => {
+            const source = document.querySelector('.boarding-pass-wrapper');
+            if (!source || !source.innerText.trim()) return window.showToast("No ticket to email", "error");
+            
+            window.showToast("Generating and sending ticket...", "info");
+            
+            try {
+                // 1. Generate PDF Blob (Reuse container logic for clean render)
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.position = 'fixed'; pdfContainer.style.top = '0'; pdfContainer.style.left = '0';
+                pdfContainer.style.width = '100%'; pdfContainer.style.height = '100%'; pdfContainer.style.zIndex = '9999';
+                pdfContainer.style.backgroundColor = 'white'; pdfContainer.style.display = 'flex';
+                pdfContainer.style.justifyContent = 'center'; pdfContainer.style.alignItems = 'flex-start';
+                pdfContainer.style.padding = '40px'; pdfContainer.style.overflow = 'hidden';
+                
+                const ticketClone = source.cloneNode(true);
+                ticketClone.style.transform = 'none'; ticketClone.style.margin = '0';
+                ticketClone.style.maxWidth = '800px'; ticketClone.style.width = '100%'; ticketClone.style.boxShadow = 'none';
+                
+                pdfContainer.appendChild(ticketClone);
+                document.body.appendChild(pdfContainer);
+                
+                const opt = { margin: 10, filename: 'ticket.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1200 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+                const pdfBlob = await html2pdf().set(opt).from(ticketClone).output('blob');
+                document.body.removeChild(pdfContainer);
+                
+                // 2. Upload to Firebase Storage
+                const ref = document.getElementById('booking-ref').innerText || 'ticket';
+                const storageRef = sRef(storage, `tickets/${userId || 'guest'}/${ref}_${Date.now()}.pdf`);
+                await uploadBytes(storageRef, pdfBlob);
+                const downloadUrl = await getDownloadURL(storageRef);
+                
+                // 3. Send Email
+                const email = document.getElementById('contact-email').value || 'user@example.com';
+                
+                if (window.emailjs) {
+                    await emailjs.send('service_xyz123', 'template_abc456', { to_email: email, pdf_link: downloadUrl, booking_ref: ref });
+                    window.showToast("Ticket emailed successfully!", "success");
+                } else {
+                    window.showToast("Email service not configured", "warning");
+                }
+            } catch (e) {
+                console.error(e);
+                window.showToast("Failed to email ticket", "error");
+            }
         };
 
         window.togglePointsRedemption = () => {
@@ -1631,12 +1808,129 @@
         window.deleteDocItem = async (c, id) => { if(confirm("Delete?")) { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', c, id)); } };
         window.checkUrlParams = () => { const p = new URLSearchParams(window.location.search); if(p.get('track')) { State.autoTrackRef=p.get('track'); window.navigateTo('tracking'); document.getElementById('track-input').value=p.get('track'); }};
         
+        // --- NETLIFY FUNCTIONS INTEGRATION ---
+        
+        // 1. Example: Call the get-post function
+        window.testNetlifyFunction = async (id) => {
+            try {
+                const res = await fetch(`/.netlify/functions/get-post?id=${id}`);
+                const data = await res.json();
+                console.log("Netlify Data:", data);
+                window.showToast("Data fetched (see console)", "success");
+            } catch(e) { console.error(e); window.showToast("Fetch failed", "error"); }
+        };
+
+        // 2. Migration: Send Firestore data to Neon SQL
+        window.migrateToSQL = async () => {
+            if(!State.flights || State.flights.length === 0) return window.showToast("No flights to migrate", "error");
+            window.showToast("Migrating to Neon SQL...", "info");
+            try {
+                const res = await fetch('/.netlify/functions/sync-flights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(State.flights)
+                });
+                const result = await res.json();
+                if(res.ok) window.showToast(`Migrated ${result.migrated} flights!`, "success");
+                else throw new Error(result.error);
+            } catch(e) { console.error(e); window.showToast("Migration Failed", "error"); }
+        };
+
+        // 3. Run Schema Migration (Add Columns/Indexes)
+        window.runSchemaMigration = async () => {
+            window.showToast("Running SQL Migration...", "info");
+            try {
+                const res = await fetch('/.netlify/functions/migrate-airline', { method: 'POST' });
+                const data = await res.json();
+                if(res.ok) window.showToast(data.message, "success");
+                else throw new Error(data.error);
+            } catch(e) { console.error(e); window.showToast("Migration Failed", "error"); }
+        };
+
+        // 4. View SQL Bookings
+        window.viewSQLBookings = async () => {
+            window.showToast("Fetching from Neon SQL...", "info");
+            try {
+                const res = await fetch('/.netlify/functions/get-bookings');
+                if (!res.ok) throw new Error("Failed to fetch");
+                const bookings = await res.json();
+                
+                const tbody = document.getElementById('sql-bookings-list');
+                tbody.innerHTML = bookings.map(b => `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700">
+                        <td class="px-4 py-2 font-mono font-bold">${b.id}</td>
+                        <td class="px-4 py-2 font-mono text-xs">${b.user_id || 'Guest'}</td>
+                        <td class="px-4 py-2">${b.flight_id}</td>
+                        <td class="px-4 py-2 text-xs">${new Date(b.created_at).toLocaleString()}</td>
+                        <td class="px-4 py-2 text-xs font-mono truncate max-w-[200px]">${JSON.stringify(b.data)}</td>
+                        <td class="px-4 py-2 text-right">
+                            <button onclick="deleteSQLBooking('${b.id}')" class="text-red-500 hover:text-red-700 transition-colors"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+                document.getElementById('sql-bookings-modal').classList.remove('hidden');
+            } catch(e) { console.error(e); window.showToast("Fetch Failed", "error"); }
+        };
+
+        // 5. Delete SQL Booking
+        window.deleteSQLBooking = async (id) => {
+            if(!confirm("Are you sure you want to delete this booking from SQL?")) return;
+            try {
+                const res = await fetch(`/.netlify/functions/delete-booking?id=${id}`, { method: 'DELETE' });
+                if(res.ok) {
+                    window.showToast("Booking deleted", "success");
+                    window.viewSQLBookings(); // Refresh list
+                } else {
+                    throw new Error("Delete failed");
+                }
+            } catch(e) { console.error(e); window.showToast("Delete failed", "error"); }
+        };
+
+        // 3. Fetch Flights from Neon SQL (Replaces Firestore Listener)
+        window.fetchFlightsFromSQL = async () => {
+            try {
+                // Call our new Netlify function
+                const res = await fetch('/.netlify/functions/get-flights');
+                if (!res.ok) throw new Error("Failed to load flights from SQL");
+                
+                const list = await res.json();
+                State.flights = list;
+
+                // Update UI
+                if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
+                if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
+                console.log(`Loaded ${list.length} flights from Neon SQL`);
+            } catch (e) { console.error(e); window.showToast("Could not load flight schedule", "error"); }
+        };
+        
+        // Aircraft Configurations
+        const aircraftConfigs = {
+            'B737': { rows: 20, cols: ['A','B','C','','D','E','F'], grid: 'repeat(7, 1fr)', width: '320px' },
+            'A320': { rows: 22, cols: ['A','B','C','','D','E','F'], grid: 'repeat(7, 1fr)', width: '320px' },
+            'B777': { rows: 30, cols: ['A','B','C','','D','E','F','G','','H','J','K'], grid: 'repeat(12, 1fr)', width: '500px' }, // 3-4-3
+            'E175': { rows: 18, cols: ['A','B','','C','D'], grid: 'repeat(5, 1fr)', width: '240px' } // 2-2
+        };
+
         window.generateSeatMap = () => {
             const grid = document.getElementById('seat-grid');
-            if(!grid || grid.children.length > 0) return;
-            const cols = ['A','B','C','','D','E','F'];
-            for(let r=1; r<=12; r++) {
-                cols.forEach(c => {
+            if(!grid) return;
+            grid.innerHTML = ''; // Clear previous map
+
+            // Determine Aircraft Type (Mock logic based on flight number if not present)
+            let type = 'B737';
+            if (State.selectedItem && State.selectedItem.aircraft) type = State.selectedItem.aircraft;
+            else if (State.selectedItem && State.selectedItem.number) {
+                const num = parseInt(State.selectedItem.number.replace(/\D/g,'')) || 0;
+                if(num % 3 === 0) type = 'B777';
+                else if(num % 2 === 0) type = 'E175';
+            }
+
+            const config = aircraftConfigs[type] || aircraftConfigs['B737'];
+            grid.style.gridTemplateColumns = config.grid;
+            grid.style.maxWidth = config.width;
+
+            for(let r=1; r<=config.rows; r++) {
+                config.cols.forEach(c => {
                     if(!c) {
                         const sp = document.createElement('div'); sp.className='aisle-spacer'; sp.innerText=r; grid.appendChild(sp);
                     } else {
@@ -1750,14 +2044,9 @@
         };
 
         const startDataSync = () => {
-            const flightsCol = collection(db, 'artifacts', appId, 'public', 'data', 'flights');
-            onSnapshot(flightsCol, (snap) => {
-                const list = [];
-                snap.forEach(d => list.push({id: d.id, ...d.data()}));
-                State.flights = list;
-                if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
-                if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
-            });
+            // SQL UPDATE: Fetch flights from Neon instead of Firestore real-time listener
+            window.fetchFlightsFromSQL();
+
             onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), (snap) => {
                 const list = [];
                 snap.forEach(d => list.push({id: d.id, ...d.data()}));
@@ -1770,6 +2059,9 @@
                 State.allBookings = list;
                 if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
                 if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
+            }, (error) => {
+                // Suppress permission denied errors for non-admins (normal behavior)
+                if (error.code !== 'permission-denied') console.error("Admin data sync skipped:", error);
             });
             
             // User Profile Sync (Points)
@@ -2161,8 +2453,7 @@
             // Check if we are updating an existing view
             const isUpdate = !resDiv.classList.contains('hidden') && document.getElementById('track-flight-number') && document.getElementById('track-flight-number').innerText === input;
 
-            // FIX: If we are NOT updating (i.e., new search), we must clear the old map instance
-            // because the DOM element it is attached to is about to be destroyed.
+            // FIX: Clean up map instance if we are switching flights (container will be destroyed)
             if (!isUpdate && State.map) {
                 State.map.remove();
                 State.map = null;
@@ -2200,8 +2491,8 @@
                 const tail = flight.tail || `N${Math.floor(Math.random()*900+100)}SW`;
                 const progress = flight.progress || "Scheduled";
 
-                const fromCode = flight.from.match(/\(([^)]+)\)/)?.[1] || 'JFK';
-                const toCode = flight.to.match(/\(([^)]+)\)/)?.[1] || 'LHR';
+                const fromCode = (flight.from.match(/\(([^)]+)\)/)?.[1] || flight.from.substring(0,3) || 'JFK').toUpperCase();
+                const toCode = (flight.to.match(/\(([^)]+)\)/)?.[1] || flight.to.substring(0,3) || 'LHR').toUpperCase();
 
                 // Timeline Logic
                 const stages = ['Scheduled', 'Check-in', 'Boarding', 'Taxiing', 'Take-off', 'In Air', 'Landed', 'Arrived'];
@@ -2344,6 +2635,7 @@
             onAuthStateChanged(auth, async u => {
                 if (u) {
                     userId = u.uid;
+                    console.log("Your User ID (Add to firestore.rules):", userId);
                     startDataSync();
                     
                     // Load Theme Preference
@@ -2370,7 +2662,9 @@
                                 if(icon) icon.className = 'fas fa-moon';
                             }
                         }
-                    } catch(e) { console.error("Theme sync error", e); }
+                    } catch(e) { 
+                        if(e.code !== 'permission-denied') console.error("Theme sync error", e);
+                    }
                     
                     setupEventListeners(); 
                     window.renderRecentSearches();
