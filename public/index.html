@@ -1058,7 +1058,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
 
         // --- STATE & CONFIG ---
         const State = {
@@ -1102,7 +1101,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'skywings-v2';
         let userId = null;
 
@@ -1691,42 +1689,10 @@
             
             window.showToast("Generating and sending ticket...", "info");
             
-            try {
-                // 1. Generate PDF Blob (Reuse container logic for clean render)
-                const pdfContainer = document.createElement('div');
-                pdfContainer.style.position = 'fixed'; pdfContainer.style.top = '0'; pdfContainer.style.left = '0';
-                pdfContainer.style.width = '100%'; pdfContainer.style.height = '100%'; pdfContainer.style.zIndex = '9999';
-                pdfContainer.style.backgroundColor = 'white'; pdfContainer.style.display = 'flex';
-                pdfContainer.style.justifyContent = 'center'; pdfContainer.style.alignItems = 'flex-start';
-                pdfContainer.style.padding = '40px'; pdfContainer.style.overflow = 'hidden';
-                
-                const ticketClone = source.cloneNode(true);
-                ticketClone.style.transform = 'none'; ticketClone.style.margin = '0';
-                ticketClone.style.maxWidth = '800px'; ticketClone.style.width = '100%'; ticketClone.style.boxShadow = 'none';
-                
-                pdfContainer.appendChild(ticketClone);
-                document.body.appendChild(pdfContainer);
-                
-                const opt = { margin: 10, filename: 'ticket.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1200 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                const pdfBlob = await html2pdf().set(opt).from(ticketClone).output('blob');
-                document.body.removeChild(pdfContainer);
-                
-                // 2. Upload to Firebase Storage
-                const ref = document.getElementById('booking-ref').innerText || 'ticket';
-                const storageRef = sRef(storage, `tickets/${userId || 'guest'}/${ref}_${Date.now()}.pdf`);
-                await uploadBytes(storageRef, pdfBlob);
-                const downloadUrl = await getDownloadURL(storageRef);
-                
-                // 3. Send Email
-                const email = document.getElementById('contact-email').value || 'user@example.com';
-                
-                // Note: For PDF attachments via email, you would typically trigger another Netlify function here.
-                // For now, we notify the user that the ticket is saved.
-                window.showToast("Ticket saved & ready to email", "success");
-            } catch (e) {
-                console.error(e);
-                window.showToast("Failed to email ticket", "error");
-            }
+            // FREE MODE FIX: Instead of uploading to Storage (which costs money/requires setup),
+            // we simply download the PDF to the user's device.
+            window.downloadTicketPDF();
+            window.showToast("Ticket downloaded. Please save for your records.", "success");
         };
 
         window.togglePointsRedemption = () => {
@@ -2258,9 +2224,19 @@
                     const fileInput = document.getElementById('adm-logo-file');
                     if (fileInput.files.length > 0) {
                         const file = fileInput.files[0];
-                        const storageRef = sRef(storage, `airline_logos/${Date.now()}_${file.name}`);
-                        await uploadBytes(storageRef, file);
-                        logoUrl = await getDownloadURL(storageRef);
+                        
+                        // FREE MODE FIX: Convert image to Base64 string to store in Firestore directly
+                        // This avoids using Firebase Storage bucket.
+                        if (file.size > 500 * 1024) {
+                            return window.showToast("Image too large. Max 500KB for free mode.", "error");
+                        }
+                        
+                        logoUrl = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.onerror = (e) => reject(e);
+                            reader.readAsDataURL(file);
+                        });
                     }
 
                     const data = {
