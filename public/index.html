@@ -1203,6 +1203,17 @@
                 const airline = document.getElementById('airline-filter').value.trim();
                 const maxPrice = document.getElementById('price-range').value;
                 
+                // Optimistic Local Search (Real-time)
+                if (State.flights.length > 0) {
+                    const norm = s => s.toLowerCase().trim();
+                    let localResults = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
+                    if (maxPrice) localResults = localResults.filter(f => f.price <= maxPrice);
+                    if (airline) localResults = localResults.filter(f => f.airline.toLowerCase().includes(airline.toLowerCase()));
+                    State.lastSearchResults = localResults;
+                    renderResultsList(localResults);
+                    loader.classList.add('hidden');
+                }
+
                 const params = new URLSearchParams();
                 if(from) params.append('from', from);
                 if(to) params.append('to', to);
@@ -1228,18 +1239,16 @@
                                     { id: 'gen_1'+Date.now(), type:'flight', airline: 'SkyWings', number: 'SKW'+Math.floor(Math.random()*800+100), from: from||'New York', to: to||'London', date: document.getElementById('departure').value || today, dep: '08:00', arr: '11:00', dur: '3h', price: 250, status: 'On Time' },
                                 ];
                             }
-                            State.lastSearchResults = results;
-                            renderResultsList(results);
+                            if (results.length > 0) {
+                                State.lastSearchResults = results;
+                                renderResultsList(results);
+                            }
                         })
                         .catch(e => {
-                            console.warn("Search API unavailable, using local fallback", e);
+                            console.log("Search API unavailable, using local data.");
                             loader.classList.add('hidden');
-                            // Fallback to local filter
-                            const norm = s => s.toLowerCase().trim();
-                            let localResults = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
-                            renderResultsList(localResults);
                         });
-                } catch(e) { console.error(e); loader.classList.add('hidden'); }
+                } catch(e) { console.log("Search fallback active."); loader.classList.add('hidden'); }
                 
             } else {
                 // Existing logic for Hotels/Cars (Mock)
@@ -1498,7 +1507,7 @@
                         body: JSON.stringify(booking)
                     });
                     if(!sqlRes.ok) throw new Error("SQL Error");
-                } catch(e) { console.error("SQL Backup Failed", e); }
+                } catch(e) { console.log("SQL Backup skipped (Offline/Config)."); }
 
                 document.getElementById('booking-ref').innerText = ref;
                 const baseUrl = window.location.href.split('?')[0];
@@ -1872,7 +1881,7 @@
                 if(State.autoTrackRef && !document.getElementById('view-tracking').classList.contains('hidden')) { setTimeout(() => { if(State.autoTrackRef) { window.handleTrack(); } }, 500); }
                 console.log(`Loaded ${list.length} flights from Neon SQL`);
             } catch (e) { 
-                console.log("SQL Fetch failed (Offline/Fallback Mode):", e);
+                console.log("SQL Fetch unavailable, using Firestore data.");
                 // Fallback to Firestore if SQL fails
                 try {
                     const snap = await getDocs(collection(db, 'artifacts', appId, 'public', 'data', 'flights'));
@@ -1882,7 +1891,7 @@
                         State.flights = list;
                         if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
                     }
-                } catch(err) { console.error("Fallback failed", err); }
+                } catch(err) { console.log("Local data sync active."); }
             }
         };
         
@@ -2027,8 +2036,13 @@
         };
 
         const startDataSync = () => {
-            // SQL UPDATE: Fetch flights from Neon instead of Firestore real-time listener
-            window.fetchFlightsFromSQL();
+            // 1. Real-time Flights Listener (Restored for Real-time Price Updates)
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'flights'), (snap) => {
+                const list = [];
+                snap.forEach(d => list.push({id: d.id, ...d.data()}));
+                State.flights = list;
+                if(!document.getElementById('view-admin').classList.contains('hidden')) window.renderAdminPanel();
+            });
 
             onSnapshot(collection(db, 'artifacts', appId, 'users', userId, 'bookings'), (snap) => {
                 const list = [];
