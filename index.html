@@ -1192,7 +1192,7 @@
             document.getElementById('passenger-summary').innerText = `${total} Traveler${total > 1 ? 's' : ''}`;
         }
 
-        function handleSearch() {
+        async function handleSearch() {
             const from = document.getElementById('from').value;
             const to = document.getElementById('to').value;
             const date = document.getElementById('departure').value;

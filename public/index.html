@@ -628,6 +628,7 @@
                     <button onclick="openAdminModal()" class="bg-brand-primary text-white px-4 py-2 rounded-lg font-bold hover:bg-sky-600 transition-colors shadow-sm flex items-center gap-2">
                         <i class="fas fa-plus"></i> Add Flight
                     </button>
+                    <button onclick="testDBConnection()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2"><i class="fas fa-plug"></i> Test DB</button>
                     <button onclick="viewSQLBookings()" class="bg-teal-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-teal-700 transition-colors shadow-sm flex items-center gap-2"><i class="fas fa-server"></i> SQL Bookings</button>
                     <button onclick="migrateToSQL()" class="bg-purple-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 transition-colors shadow-sm flex items-center gap-2"><i class="fas fa-database"></i> Sync SQL</button>
                     <button onclick="runSchemaMigration()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2"><i class="fas fa-table"></i> Migrate DB</button>
@@ -1239,7 +1240,7 @@
                             let localResults = State.flights.filter(f => norm(f.from).includes(norm(from)) && norm(f.to).includes(norm(to)));
                             renderResultsList(localResults);
                         });
-                } catch(e) { console.error(e); }
+                } catch(e) { console.error(e); loader.classList.add('hidden'); }
                 
             } else {
                 // Existing logic for Hotels/Cars (Mock)
@@ -1794,6 +1795,23 @@
                 if(res.ok) window.showToast(data.message, "success");
                 else throw new Error(data.error);
             } catch(e) { console.error(e); window.showToast("Migration Failed", "error"); }
+        };
+
+        // 6. Test DB Connection
+        window.testDBConnection = async () => {
+            window.showToast("Testing connection...", "info");
+            try {
+                const start = Date.now();
+                const res = await fetch('/.netlify/functions/get-flights');
+                const contentType = res.headers.get("content-type");
+                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Endpoint unavailable");
+                const data = await res.json();
+                const duration = Date.now() - start;
+                window.showToast(`Connected! ${data.length} flights found (${duration}ms)`, "success");
+            } catch(e) {
+                console.error(e);
+                window.showToast("Connection Failed: " + e.message, "error");
+            }
         };
 
         // 4. View SQL Bookings
