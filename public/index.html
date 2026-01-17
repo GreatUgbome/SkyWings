@@ -1845,9 +1845,14 @@
         window.testNetlifyFunction = async (id) => {
             try {
                 const res = await fetch(`/.netlify/functions/get-post?id=${id}`);
-                const data = await res.json();
-                console.log("Netlify Data:", data);
-                window.showToast("Data fetched (see console)", "success");
+                if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+                    const data = await res.json();
+                    console.log("Netlify Data:", data);
+                    window.showToast("Data fetched (see console)", "success");
+                } else {
+                    const text = await res.text();
+                    throw new Error(text || res.statusText);
+                }
             } catch(e) { console.error(e); window.showToast("Fetch failed", "error"); }
         };
 
@@ -1861,11 +1866,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(State.flights)
                 });
-                const contentType = res.headers.get("content-type");
-                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Migration endpoint unavailable");
-                const result = await res.json();
-                if(res.ok) window.showToast(`Migrated ${result.migrated} flights!`, "success");
-                else throw new Error(result.error);
+                
+                if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+                    const result = await res.json();
+                    window.showToast(`Migrated ${result.migrated} flights!`, "success");
+                } else {
+                    const text = await res.text();
+                    throw new Error(text || "Migration endpoint unavailable");
+                }
             } catch(e) { console.error(e); window.showToast("Migration Failed", "error"); }
         };
 
@@ -1874,11 +1882,14 @@
             window.showToast("Running SQL Migration...", "info");
             try {
                 const res = await fetch('/.netlify/functions/migrate-airline', { method: 'POST' });
-                const contentType = res.headers.get("content-type");
-                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Migration endpoint unavailable");
-                const data = await res.json();
-                if(res.ok) window.showToast(data.message, "success");
-                else throw new Error(data.error);
+                
+                if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+                    const data = await res.json();
+                    window.showToast(data.message, "success");
+                } else {
+                    const text = await res.text();
+                    throw new Error(text || "Migration endpoint unavailable");
+                }
             } catch(e) { console.error(e); window.showToast("Migration Failed", "error"); }
         };
 
@@ -1887,9 +1898,14 @@
             window.showToast("Updating flight statuses...", "info");
             try {
                 const res = await fetch('/.netlify/functions/update-flight-status', { method: 'POST' });
-                const data = await res.json();
-                if(res.ok) window.showToast(`Updated ${data.updated} flights`, "success");
-                else throw new Error(data.error);
+                
+                if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+                    const data = await res.json();
+                    window.showToast(`Updated ${data.updated} flights`, "success");
+                } else {
+                    const text = await res.text();
+                    throw new Error(text || "Update endpoint unavailable");
+                }
             } catch(e) {
                 console.error(e);
                 window.showToast("Update failed", "error");
@@ -1902,11 +1918,14 @@
             try {
                 const start = Date.now();
                 const res = await fetch('/.netlify/functions/get-flights');
-                const contentType = res.headers.get("content-type");
-                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Endpoint unavailable");
-                const data = await res.json();
-                const duration = Date.now() - start;
-                window.showToast(`Connected! ${data.length} flights found (${duration}ms)`, "success");
+                
+                if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+                    const data = await res.json();
+                    const duration = Date.now() - start;
+                    window.showToast(`Connected! ${data.length} flights found (${duration}ms)`, "success");
+                } else {
+                    throw new Error("Endpoint unavailable or DB error");
+                }
             } catch(e) {
                 console.error(e);
                 window.showToast("Connection Failed: " + e.message, "error");
@@ -1918,9 +1937,13 @@
             window.showToast("Fetching from Neon SQL...", "info");
             try {
                 const res = await fetch('/.netlify/functions/get-bookings');
-                const contentType = res.headers.get("content-type");
-                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("Failed to fetch");
-                const bookings = await res.json();
+                let bookings = [];
+                
+                if (res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
+                    bookings = await res.json();
+                } else {
+                    throw new Error("Failed to fetch bookings from SQL");
+                }
                 
                 const tbody = document.getElementById('sql-bookings-list');
                 tbody.innerHTML = bookings.map(b => `
@@ -1944,8 +1967,7 @@
             if(!confirm("Are you sure you want to delete this booking from SQL?")) return;
             try {
                 const res = await fetch(`/.netlify/functions/delete-booking?id=${id}`, { method: 'DELETE' });
-                const contentType = res.headers.get("content-type");
-                if(res.ok && contentType && contentType.includes("application/json")) {
+                if(res.ok && (res.headers.get("content-type") || "").includes("application/json")) {
                     window.showToast("Booking deleted", "success");
                     window.viewSQLBookings(); // Refresh list
                 } else {
@@ -1960,9 +1982,10 @@
                 // Call our new Netlify function
                 const res = await fetch('/.netlify/functions/get-flights');
                 
-                // FIX: Check for valid JSON response to avoid SyntaxError on 404/500 HTML pages
-                const contentType = res.headers.get("content-type");
-                if (!res.ok || !contentType || !contentType.includes("application/json")) throw new Error("SQL Endpoint unavailable");
+                if (!res.ok || !(res.headers.get("content-type") || "").includes("application/json")) {
+                    // Silent fail to fallback
+                    throw new Error("SQL Endpoint unavailable");
+                }
                 
                 const list = await res.json();
                 State.flights = list;
