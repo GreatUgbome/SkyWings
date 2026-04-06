@@ -1,13 +1,32 @@
 [build]
   base = "."
-  command = "rm -rf node_modules package-lock.json && npm install"
+  command = "npm run build:web || echo 'No web build needed'"
   publish = "public"
   functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
+  NODE_ENV = "production"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/public/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[context.development]
+  command = "npm run dev"
+  environment = { NODE_ENV = "development" }
+
+[context.deploy-preview]
+  command = "npm run build:preview"
+  environment = { NODE_ENV = "staging" }

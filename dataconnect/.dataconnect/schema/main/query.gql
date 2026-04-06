@@ -1,0 +1,320 @@
+extend type Query {
+  """
+  ✨ Look up a single `Airline` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  airline(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Airline_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Airline_FirstRow
+  ): Airline @fdc_generated(from: "Airline", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Airport` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  airport(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Airport_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Airport_FirstRow
+  ): Airport @fdc_generated(from: "Airport", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Booking` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  booking(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Booking_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Booking_FirstRow
+  ): Booking @fdc_generated(from: "Booking", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Flight` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  flight(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Flight_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Flight_FirstRow
+  ): Flight @fdc_generated(from: "Flight", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `FlightSegment` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  flightSegment(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: FlightSegment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: FlightSegment_FirstRow
+  ): FlightSegment @fdc_generated(from: "FlightSegment", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `User` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  user(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `Airline` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  airlines(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Airline_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Airline_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Airline_Having
+  ): [Airline!]! @fdc_generated(from: "Airline", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Airport` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  airports(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Airport_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Airport_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Airport_Having
+  ): [Airport!]! @fdc_generated(from: "Airport", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Booking` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  bookings(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Booking_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Booking_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Booking_Having
+  ): [Booking!]! @fdc_generated(from: "Booking", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Flight` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  flights(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Flight_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Flight_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Flight_Having
+  ): [Flight!]! @fdc_generated(from: "Flight", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `FlightSegment` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  flightSegments(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: FlightSegment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [FlightSegment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: FlightSegment_Having
+  ): [FlightSegment!]! @fdc_generated(from: "FlightSegment", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `User` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  users(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User", purpose: QUERY_MULTIPLE)
+}

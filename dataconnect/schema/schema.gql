@@ -1,0 +1,55 @@
+type User @table {
+  email: String!
+  passwordHash: String!
+  createdAt: Timestamp!
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  address: String
+}
+
+type Airport @table {
+  iataCode: String!
+  name: String!
+  city: String!
+  country: String!
+  latitude: Float
+  longitude: Float
+}
+
+type Airline @table {
+  iataCode: String!
+  name: String!
+  website: String
+}
+
+type Flight @table {
+  airline: Airline!
+  originAirport: Airport!
+  destinationAirport: Airport!
+  flightNumber: String!
+  departureTime: Timestamp!
+  arrivalTime: Timestamp!
+  price: Float!
+  availableSeats: Int!
+  createdAt: Timestamp!
+  duration: Int
+  aircraftType: String
+}
+
+type Booking @table {
+  user: User!
+  bookingReference: String!
+  bookingDate: Timestamp!
+  status: String!
+  totalPrice: Float!
+  paymentMethod: String
+}
+
+type FlightSegment @table {
+  booking: Booking!
+  flight: Flight!
+  seatNumber: String!
+  passengerName: String!
+  mealPreference: String
+}

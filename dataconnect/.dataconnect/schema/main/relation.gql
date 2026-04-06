@@ -1,0 +1,880 @@
+extend type Airline {
+  """
+  ✨ List `Flight` objects in a one-to-many relationship (where `Flight`.`airline` is this object).
+  """
+  flights_on_airline(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Flight_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Flight_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Flight_Having
+  ): [Flight!]! @fdc_generated(from: "Flight.airline", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Airline", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Airline` table.
+  """
+  _count: Int! @fdc_generated(from: "Airline.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airline` table where the `iataCode` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  iataCode_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airline.iataCode", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airline` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airline.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airline` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airline.name", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airline` table where the `website` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  website_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airline.website", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Airline.id", purpose: GLOBAL_ID)
+}
+extend type Airport {
+  """
+  ✨ List `Flight` objects in a one-to-many relationship (where `Flight`.`destinationAirport` is this object).
+  """
+  flights_on_destinationAirport(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Flight_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Flight_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Flight_Having
+  ): [Flight!]! @fdc_generated(from: "Flight.destinationAirport", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `Flight` objects in a one-to-many relationship (where `Flight`.`originAirport` is this object).
+  """
+  flights_on_originAirport(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Flight_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Flight_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Flight_Having
+  ): [Flight!]! @fdc_generated(from: "Flight.originAirport", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Airport", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Airport` table.
+  """
+  _count: Int! @fdc_generated(from: "Airport.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airport` table where the `city` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  city_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airport.city", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airport` table where the `country` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  country_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airport.country", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airport` table where the `iataCode` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  iataCode_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airport.iataCode", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airport` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airport.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airport` table where the `latitude` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  latitude_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airport.latitude", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airport` table where the `longitude` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  longitude_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airport.longitude", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Airport` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Airport.name", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `latitude` field in the `Airport` table.
+  """
+  latitude_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Airport.latitude", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `longitude` field in the `Airport` table.
+  """
+  longitude_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Airport.longitude", purpose: QUERY_SUM)
+  """
+  ✨ Average the `latitude` field in the `Airport` table.
+  """
+  latitude_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Airport.latitude", purpose: QUERY_AVG)
+  """
+  ✨ Average the `longitude` field in the `Airport` table.
+  """
+  longitude_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Airport.longitude", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `latitude` field in the `Airport` table.
+  """
+  latitude_min: Float @fdc_generated(from: "Airport.latitude", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `longitude` field in the `Airport` table.
+  """
+  longitude_min: Float @fdc_generated(from: "Airport.longitude", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `latitude` field in the `Airport` table.
+  """
+  latitude_max: Float @fdc_generated(from: "Airport.latitude", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `longitude` field in the `Airport` table.
+  """
+  longitude_max: Float @fdc_generated(from: "Airport.longitude", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Airport.id", purpose: GLOBAL_ID)
+}
+extend type Booking {
+  """
+  ✨ List `FlightSegment` objects in a one-to-many relationship (where `FlightSegment`.`booking` is this object).
+  """
+  flightSegments_on_booking(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: FlightSegment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [FlightSegment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: FlightSegment_Having
+  ): [FlightSegment!]! @fdc_generated(from: "FlightSegment.booking", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Booking", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Booking` table.
+  """
+  _count: Int! @fdc_generated(from: "Booking.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Booking` table where the `bookingDate` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  bookingDate_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Booking.bookingDate", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Booking` table where the `bookingReference` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  bookingReference_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Booking.bookingReference", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Booking` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Booking.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Booking` table where the `paymentMethod` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  paymentMethod_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Booking.paymentMethod", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Booking` table where the `status` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  status_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Booking.status", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Booking` table where the `totalPrice` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  totalPrice_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Booking.totalPrice", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Booking` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Booking.userId", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `totalPrice` field in the `Booking` table.
+  """
+  totalPrice_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Booking.totalPrice", purpose: QUERY_SUM)
+  """
+  ✨ Average the `totalPrice` field in the `Booking` table.
+  """
+  totalPrice_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Booking.totalPrice", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `bookingDate` field in the `Booking` table.
+  """
+  bookingDate_min: Timestamp @fdc_generated(from: "Booking.bookingDate", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `totalPrice` field in the `Booking` table.
+  """
+  totalPrice_min: Float @fdc_generated(from: "Booking.totalPrice", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `bookingDate` field in the `Booking` table.
+  """
+  bookingDate_max: Timestamp @fdc_generated(from: "Booking.bookingDate", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `totalPrice` field in the `Booking` table.
+  """
+  totalPrice_max: Float @fdc_generated(from: "Booking.totalPrice", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Booking.id", purpose: GLOBAL_ID)
+}
+extend type Flight {
+  """
+  ✨ List `FlightSegment` objects in a one-to-many relationship (where `FlightSegment`.`flight` is this object).
+  """
+  flightSegments_on_flight(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: FlightSegment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [FlightSegment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: FlightSegment_Having
+  ): [FlightSegment!]! @fdc_generated(from: "FlightSegment.flight", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Flight", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Flight` table.
+  """
+  _count: Int! @fdc_generated(from: "Flight.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `aircraftType` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  aircraftType_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.aircraftType", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `airlineId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  airlineId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.airlineId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `arrivalTime` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  arrivalTime_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.arrivalTime", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `availableSeats` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  availableSeats_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.availableSeats", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `departureTime` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  departureTime_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.departureTime", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `destinationAirportId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  destinationAirportId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.destinationAirportId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `duration` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  duration_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.duration", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `flightNumber` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  flightNumber_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.flightNumber", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `originAirportId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  originAirportId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.originAirportId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Flight` table where the `price` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  price_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Flight.price", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `availableSeats` field in the `Flight` table.
+  """
+  availableSeats_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Flight.availableSeats", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `duration` field in the `Flight` table.
+  """
+  duration_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Flight.duration", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `price` field in the `Flight` table.
+  """
+  price_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Flight.price", purpose: QUERY_SUM)
+  """
+  ✨ Average the `availableSeats` field in the `Flight` table.
+  """
+  availableSeats_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Flight.availableSeats", purpose: QUERY_AVG)
+  """
+  ✨ Average the `duration` field in the `Flight` table.
+  """
+  duration_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Flight.duration", purpose: QUERY_AVG)
+  """
+  ✨ Average the `price` field in the `Flight` table.
+  """
+  price_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Flight.price", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `arrivalTime` field in the `Flight` table.
+  """
+  arrivalTime_min: Timestamp @fdc_generated(from: "Flight.arrivalTime", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `availableSeats` field in the `Flight` table.
+  """
+  availableSeats_min: Int @fdc_generated(from: "Flight.availableSeats", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `createdAt` field in the `Flight` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "Flight.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `departureTime` field in the `Flight` table.
+  """
+  departureTime_min: Timestamp @fdc_generated(from: "Flight.departureTime", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `duration` field in the `Flight` table.
+  """
+  duration_min: Int @fdc_generated(from: "Flight.duration", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `price` field in the `Flight` table.
+  """
+  price_min: Float @fdc_generated(from: "Flight.price", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `arrivalTime` field in the `Flight` table.
+  """
+  arrivalTime_max: Timestamp @fdc_generated(from: "Flight.arrivalTime", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `availableSeats` field in the `Flight` table.
+  """
+  availableSeats_max: Int @fdc_generated(from: "Flight.availableSeats", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `createdAt` field in the `Flight` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "Flight.createdAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `departureTime` field in the `Flight` table.
+  """
+  departureTime_max: Timestamp @fdc_generated(from: "Flight.departureTime", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `duration` field in the `Flight` table.
+  """
+  duration_max: Int @fdc_generated(from: "Flight.duration", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `price` field in the `Flight` table.
+  """
+  price_max: Float @fdc_generated(from: "Flight.price", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Flight.id", purpose: GLOBAL_ID)
+}
+extend type FlightSegment {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "FlightSegment", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `FlightSegment` table.
+  """
+  _count: Int! @fdc_generated(from: "FlightSegment.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `FlightSegment` table where the `bookingId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  bookingId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "FlightSegment.bookingId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `FlightSegment` table where the `flightId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  flightId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "FlightSegment.flightId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `FlightSegment` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "FlightSegment.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `FlightSegment` table where the `mealPreference` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  mealPreference_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "FlightSegment.mealPreference", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `FlightSegment` table where the `passengerName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  passengerName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "FlightSegment.passengerName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `FlightSegment` table where the `seatNumber` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  seatNumber_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "FlightSegment.seatNumber", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "FlightSegment.id", purpose: GLOBAL_ID)
+}
+extend type User {
+  """
+  ✨ List `Booking` objects in a one-to-many relationship (where `Booking`.`user` is this object).
+  """
+  bookings_on_user(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Booking_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Booking_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Booking_Having
+  ): [Booking!]! @fdc_generated(from: "Booking.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "User", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `User` table.
+  """
+  _count: Int! @fdc_generated(from: "User.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `address` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  address_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.address", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `email` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  email_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.email", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `firstName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  firstName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.firstName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `lastName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.lastName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `passwordHash` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  passwordHash_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.passwordHash", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `phoneNumber` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  phoneNumber_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.phoneNumber", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `createdAt` field in the `User` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `createdAt` field in the `User` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "User.id", purpose: GLOBAL_ID)
+}

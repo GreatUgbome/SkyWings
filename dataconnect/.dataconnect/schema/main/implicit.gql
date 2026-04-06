@@ -1,0 +1,60 @@
+extend type Airline {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Airline", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type Airport {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Airport", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type Booking {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Booking", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Booking`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  userId: UUID! @fdc_generated(from: "Booking.user", purpose: IMPLICIT_REF_FIELD)
+}
+extend type Flight {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Flight", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Flight`.`airline`. It must match the value of `Airline`.`id`. See `@ref` for how to customize it.
+  """
+  airlineId: UUID! @fdc_generated(from: "Flight.airline", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Flight`.`destinationAirport`. It must match the value of `Airport`.`id`. See `@ref` for how to customize it.
+  """
+  destinationAirportId: UUID! @fdc_generated(from: "Flight.destinationAirport", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Flight`.`originAirport`. It must match the value of `Airport`.`id`. See `@ref` for how to customize it.
+  """
+  originAirportId: UUID! @fdc_generated(from: "Flight.originAirport", purpose: IMPLICIT_REF_FIELD)
+}
+extend type FlightSegment {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "FlightSegment", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `FlightSegment`.`booking`. It must match the value of `Booking`.`id`. See `@ref` for how to customize it.
+  """
+  bookingId: UUID! @fdc_generated(from: "FlightSegment.booking", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `FlightSegment`.`flight`. It must match the value of `Flight`.`id`. See `@ref` for how to customize it.
+  """
+  flightId: UUID! @fdc_generated(from: "FlightSegment.flight", purpose: IMPLICIT_REF_FIELD)
+}
+extend type User {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "User", purpose: IMPLICIT_KEY_FIELD)
+}

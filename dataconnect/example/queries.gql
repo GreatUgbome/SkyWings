@@ -1,0 +1,92 @@
+# Query 1: Get all available flights, ordered by departure time
+query GetAllFlights @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  flights(orderBy: [{departureTime: ASC}]) {
+    id
+    flightNumber
+    departureTime
+    arrivalTime
+    price
+    availableSeats
+    airline {
+      name
+      iataCode
+    }
+    originAirport {
+      name
+      iataCode
+      city
+      country
+    }
+    destinationAirport {
+      name
+      iataCode
+      city
+      country
+    }
+  }
+}
+
+# Query 2: Get user's bookings, accessible only to authenticated users
+query GetMyBookings @auth(level: USER) {
+  bookings(where: {userId: {eq_expr: "auth.uid"}}, orderBy: [{bookingDate: DESC}]) {
+    id
+    bookingReference
+    bookingDate
+    totalPrice
+    status
+    flightSegments {
+      id
+      passengerName
+      seatNumber
+      flight {
+        flightNumber
+        departureTime
+        arrivalTime
+        airline {
+          name
+        }
+        originAirport {
+          iataCode
+        }
+        destinationAirport {
+          iataCode
+        }
+      }
+    }
+  }
+}
+
+# Mutation 1: Create a new user account
+mutation CreateUserAccount($email: String!, $passwordHash: String!, $firstName: String, $lastName: String) @auth(level: PUBLIC, insecureReason: "This operation is safe to expose to the public") {
+  user_insert(data: {
+    email: $email,
+    passwordHash: $passwordHash,
+    firstName: $firstName,
+    lastName: $lastName,
+    createdAt_expr: "request.time"
+  }) {
+    id
+  }
+}
+
+# Mutation 2: Book a flight (assuming flightId, passengerName, and seatNumber are provided)
+mutation BookFlight($flightId: UUID!, $passengerName: String!, $seatNumber: String!) @auth(level: USER) {
+  booking: booking_insert(data: {
+    userId_expr: "auth.uid",
+    bookingReference_expr: "uuidV4()",
+    bookingDate_expr: "request.time",
+    status: "CONFIRMED",
+    totalPrice: 100.00, # Placeholder, in a real app this would be calculated
+    paymentMethod: "CREDIT_CARD" # Placeholder
+  }) {
+    id
+  }
+  flightSegment: flightSegment_insert(data: {
+    flightId: $flightId,
+    passengerName: $passengerName,
+    seatNumber: $seatNumber,
+    bookingId_expr: "booking.id" # Reference the newly created booking's ID
+  }) {
+    id
+  }
+}

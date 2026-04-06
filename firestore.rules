@@ -1,49 +1,99 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Match the app structure: artifacts/{appId}/...
+    // Central rule helpers
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Match the artifacts structure (appId defaults to skywings-v2)
     match /artifacts/{appId} {
       
-      // SECURITY: Only allow specific UIDs to perform Admin actions
-      function isAdmin() {
-        return request.auth != null && request.auth.uid in ['6bkmpyxBTKV1KVNPiJWMjdhcBZG2'];
-      }
-
-      // FLIGHTS: Publicly readable, writable by authenticated users (Admins)
-      match /public/data/flights/{flightId} {
-        allow read: if true;
-        allow write: if isAdmin();
-      }
-
-      // ALERTS: Publicly readable
-      match /public/data/alerts/{alertId} {
-        allow read: if true;
-        allow write: if isAdmin();
-      }
-
-      // TRACKING: Publicly readable for global tracking by reference
-      match /public/data/tracking/{ref} {
-        allow read: if true;
-        allow write: if request.auth != null;
-      }
-
-      // PUBLIC BOOKINGS: Used for Admin dashboard and creating copies of bookings
-      match /public/data/bookings/{bookingId} {
-        // Admins can see all bookings
-        allow read: if isAdmin();
-        // Users can create bookings, but only Admins can update/delete them in the public list
-        allow create: if request.auth != null;
-        allow update, delete: if isAdmin();
-      }
-
-      // USER DATA: Users can only read/write their own data
+      // USER DATA: Only the authenticated user can read/write their own data
       match /users/{userId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isOwner(userId);
         
-        match /{document=**} {
-          allow read, write: if request.auth != null && request.auth.uid == userId;
+        // Allow access to user's subcollections (bookings, wishlist, etc)
+        match /{subcollection}/{document=**} {
+          allow read, write: if isOwner(userId);
         }
       }
+
+      // PUBLIC DATA NESTED STRUCTURE: /public/data/{collection}/{document} and deeper
+      match /public/data/{allPaths=**} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isAdmin() || isAuthenticated();
+      }
+
+      // PUBLIC BOOKINGS COLLECTION (at root level)
+      match /public/bookings/{bookingId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isAdmin() || isAuthenticated();
+      }
+
+      // FLIGHTS AT PUBLIC ROOT
+      match /public/flights/{flightId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+      }
+
+      // BOOKINGS COLLECTION (Standalone)
+      match /bookings/{bookingId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated();
+        allow update, delete: if isAdmin() || isAuthenticated();
+      }
+
+      // PUBLIC FLIGHTS: Authenticated users can read, only admins can write
+      match /flights/{flightId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+      }
+
+      // AIRLINES: Authenticated users can read, admins can write
+      match /airlines/{airlineId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+      }
+
+      // AIRPORTS: Authenticated users can read, admins can write
+      match /airports/{airportId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin();
+      }
+
+      // PUBLIC ALERTS: Authenticated users can read, admins write
+      match /alerts/{alertId} {
+        allow read: if isAuthenticated();
+        allow create, update, delete: if isAdmin();
+      }
+
+      // TRACKING DATA: Authenticated users can read (broadcast alert doc + specific refs)
+      match /tracking/{document=**} {
+        allow read: if isAuthenticated();
+        allow write: if isAdmin();
+      }
+
+      // SYSTEM DATA: Admins only
+      match /system/{document=**} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    // Deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

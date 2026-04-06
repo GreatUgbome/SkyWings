@@ -1,0 +1,674 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `Airline` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  airline_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Airline_Data!
+  ): Airline_KeyOutput! @fdc_generated(from: "Airline", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Airport` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  airport_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Airport_Data!
+  ): Airport_KeyOutput! @fdc_generated(from: "Airport", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Booking` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  booking_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Booking_Data!
+  ): Booking_KeyOutput! @fdc_generated(from: "Booking", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Flight` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  flight_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Flight_Data!
+  ): Flight_KeyOutput! @fdc_generated(from: "Flight", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `FlightSegment` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  flightSegment_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: FlightSegment_Data!
+  ): FlightSegment_KeyOutput! @fdc_generated(from: "FlightSegment", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `User` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `Airline` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  airline_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Airline_Data!]!
+  ): [Airline_KeyOutput!]! @fdc_generated(from: "Airline", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Airport` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  airport_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Airport_Data!]!
+  ): [Airport_KeyOutput!]! @fdc_generated(from: "Airport", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Booking` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  booking_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Booking_Data!]!
+  ): [Booking_KeyOutput!]! @fdc_generated(from: "Booking", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Flight` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  flight_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Flight_Data!]!
+  ): [Flight_KeyOutput!]! @fdc_generated(from: "Flight", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `FlightSegment` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  flightSegment_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [FlightSegment_Data!]!
+  ): [FlightSegment_KeyOutput!]! @fdc_generated(from: "FlightSegment", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `User` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `Airline` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Airline`.
+  """
+  airline_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Airline_Data!
+  ): Airline_KeyOutput! @fdc_generated(from: "Airline", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Airport` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Airport`.
+  """
+  airport_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Airport_Data!
+  ): Airport_KeyOutput! @fdc_generated(from: "Airport", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Booking` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Booking`.
+  """
+  booking_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Booking_Data!
+  ): Booking_KeyOutput! @fdc_generated(from: "Booking", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Flight` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Flight`.
+  """
+  flight_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Flight_Data!
+  ): Flight_KeyOutput! @fdc_generated(from: "Flight", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `FlightSegment` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `FlightSegment`.
+  """
+  flightSegment_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: FlightSegment_Data!
+  ): FlightSegment_KeyOutput! @fdc_generated(from: "FlightSegment", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `User` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `Airline` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Airline`.
+  """
+  airline_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Airline_Data!]!
+  ): [Airline_KeyOutput!]! @fdc_generated(from: "Airline", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Airport` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Airport`.
+  """
+  airport_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Airport_Data!]!
+  ): [Airport_KeyOutput!]! @fdc_generated(from: "Airport", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Booking` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Booking`.
+  """
+  booking_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Booking_Data!]!
+  ): [Booking_KeyOutput!]! @fdc_generated(from: "Booking", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Flight` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Flight`.
+  """
+  flight_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Flight_Data!]!
+  ): [Flight_KeyOutput!]! @fdc_generated(from: "Flight", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `FlightSegment` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `FlightSegment`.
+  """
+  flightSegment_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [FlightSegment_Data!]!
+  ): [FlightSegment_KeyOutput!]! @fdc_generated(from: "FlightSegment", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `User` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `Airline` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Airline` or `null` if not found.
+  """
+  airline_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Airline_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Airline_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Airline_Data!
+  ): Airline_KeyOutput @fdc_generated(from: "Airline", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Airport` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Airport` or `null` if not found.
+  """
+  airport_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Airport_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Airport_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Airport_Data!
+  ): Airport_KeyOutput @fdc_generated(from: "Airport", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Booking` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Booking` or `null` if not found.
+  """
+  booking_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Booking_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Booking_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Booking_Data!
+  ): Booking_KeyOutput @fdc_generated(from: "Booking", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Flight` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Flight` or `null` if not found.
+  """
+  flight_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Flight_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Flight_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Flight_Data!
+  ): Flight_KeyOutput @fdc_generated(from: "Flight", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `FlightSegment` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `FlightSegment` or `null` if not found.
+  """
+  flightSegment_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: FlightSegment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: FlightSegment_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: FlightSegment_Data!
+  ): FlightSegment_KeyOutput @fdc_generated(from: "FlightSegment", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `User` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `User` or `null` if not found.
+  """
+  user_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: User_Data!
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `Airline` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  airline_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Airline_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Airline_Data!
+  ): Int! @fdc_generated(from: "Airline", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Airport` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  airport_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Airport_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Airport_Data!
+  ): Int! @fdc_generated(from: "Airport", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Booking` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  booking_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Booking_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Booking_Data!
+  ): Int! @fdc_generated(from: "Booking", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Flight` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  flight_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Flight_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Flight_Data!
+  ): Int! @fdc_generated(from: "Flight", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `FlightSegment` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  flightSegment_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: FlightSegment_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: FlightSegment_Data!
+  ): Int! @fdc_generated(from: "FlightSegment", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `User` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  user_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: User_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: User_Data!
+  ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `Airline` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  airline_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Airline_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Airline_FirstRow
+  ): Airline_KeyOutput @fdc_generated(from: "Airline", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Airport` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  airport_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Airport_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Airport_FirstRow
+  ): Airport_KeyOutput @fdc_generated(from: "Airport", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Booking` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  booking_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Booking_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Booking_FirstRow
+  ): Booking_KeyOutput @fdc_generated(from: "Booking", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Flight` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  flight_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Flight_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Flight_FirstRow
+  ): Flight_KeyOutput @fdc_generated(from: "Flight", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `FlightSegment` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  flightSegment_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: FlightSegment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: FlightSegment_FirstRow
+  ): FlightSegment_KeyOutput @fdc_generated(from: "FlightSegment", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `User` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  user_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `Airline` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  airline_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Airline_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Airline", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Airport` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  airport_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Airport_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Airport", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Booking` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  booking_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Booking_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Booking", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Flight` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  flight_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Flight_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Flight", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `FlightSegment` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  flightSegment_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: FlightSegment_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "FlightSegment", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `User` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  user_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: User_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "User", purpose: DELETE_MULTIPLE)
+}

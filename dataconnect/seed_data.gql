@@ -1,0 +1,126 @@
+mutation CreateDemoData @transaction @auth(level: USER, insecureReason: "This is a seed data mutation, only authorized users can populate data.") {
+  user_insertMany(data: [
+    {
+      id: "b21e84a2-1e96-41f9-9a74-0f2c8d6e1b0c",
+      email: "john.doe@example.com",
+      passwordHash: "hashedpassword1",
+      createdAt: "2023-01-01T10:00:00Z",
+      firstName: "John",
+      lastName: "Doe",
+      phoneNumber: "123-456-7890",
+      address: "123 Main St, Anytown"
+    },
+    {
+      id: "c7f9d1a3-2c8e-4a71-8b0f-1e96d4b2a3c1",
+      email: "jane.smith@example.com",
+      passwordHash: "hashedpassword2",
+      createdAt: "2023-01-02T11:00:00Z",
+      firstName: "Jane",
+      lastName: "Smith",
+      phoneNumber: "098-765-4321",
+      address: "456 Oak Ave, Otherville"
+    }
+  ])
+  airline_insertMany(data: [
+    {
+      id: "a1d5e0f7-b8c3-4d2a-9e1f-6c7b8a9d0e1f",
+      iataCode: "AA",
+      name: "American Airlines",
+      website: "http://www.aa.com"
+    },
+    {
+      id: "b2f6c1g8-c9d4-5e3b-a0f2-7d8e9c0f1g2h",
+      iataCode: "UA",
+      name: "United Airlines",
+      website: "http://www.united.com"
+    }
+  ])
+  airport_insertMany(data: [
+    {
+      id: "d3e7f8a9-g0h1-4i2j-5k3l-6m4n7o8p9q0r",
+      iataCode: "JFK",
+      name: "John F. Kennedy International Airport",
+      city: "New York",
+      country: "USA",
+      latitude: 40.6413,
+      longitude: -73.7781
+    },
+    {
+      id: "e4f8g9b0-h1i2-5j3k-6l4m-7n5o8p9q0r1s",
+      iataCode: "LAX",
+      name: "Los Angeles International Airport",
+      city: "Los Angeles",
+      country: "USA",
+      latitude: 33.9416,
+      longitude: -118.4003
+    }
+  ])
+  flight_insertMany(data: [
+    {
+      id: "f5g9h0c1-i2j3-6k4l-7m5n-8o6p9q0r1s2t",
+      airlineId: "a1d5e0f7-b8c3-4d2a-9e1f-6c7b8a9d0e1f",
+      originAirportId: "d3e7f8a9-g0h1-4i2j-5k3l-6m4n7o8p9q0r",
+      destinationAirportId: "e4f8g9b0-h1i2-5j3k-6l4m-7n5o8p9q0r1s",
+      flightNumber: "AA100",
+      departureTime: "2023-11-15T08:00:00Z",
+      arrivalTime: "2023-11-15T11:00:00Z",
+      price: 250.00,
+      availableSeats: 150,
+      createdAt: "2023-10-01T00:00:00Z",
+      duration: 180,
+      aircraftType: "Boeing 737"
+    },
+    {
+      id: "g6h0i1d2-j3k4-7l5m-8n6o-9p7q0r1s2t3u",
+      airlineId: "b2f6c1g8-c9d4-5e3b-a0f2-7d8e9c0f1g2h",
+      originAirportId: "e4f8g9b0-h1i2-5j3k-6l4m-7n5o8p9q0r1s",
+      destinationAirportId: "d3e7f8a9-g0h1-4i2j-5k3l-6m4n7o8p9q0r",
+      flightNumber: "UA200",
+      departureTime: "2023-11-16T10:00:00Z",
+      arrivalTime: "2023-11-16T13:00:00Z",
+      price: 300.00,
+      availableSeats: 100,
+      createdAt: "2023-10-02T00:00:00Z",
+      duration: 180,
+      aircraftType: "Airbus A320"
+    }
+  ])
+  booking_insertMany(data: [
+    {
+      id: "h7i1j2e3-k4l5-8m6n-9o7p-0q8r1s2t3u4v",
+      userId: "b21e84a2-1e96-41f9-9a74-0f2c8d6e1b0c",
+      bookingReference: "BOOKREF001",
+      bookingDate: "2023-10-10T14:30:00Z",
+      status: "CONFIRMED",
+      totalPrice: 250.00,
+      paymentMethod: "Credit Card"
+    },
+    {
+      id: "i8j2k3f4-l5m6-9n7o-0p8q-1r9s2t3u4v5w",
+      userId: "c7f9d1a3-2c8e-4a71-8b0f-1e96d4b2a3c1",
+      bookingReference: "BOOKREF002",
+      bookingDate: "2023-10-11T15:00:00Z",
+      status: "PENDING",
+      totalPrice: 300.00,
+      paymentMethod: "PayPal"
+    }
+  ])
+  flightSegment_insertMany(data: [
+    {
+      id: "j9k3l4g5-m6n7-0o8p-1q9r-2s0t3u4v5w6x",
+      bookingId: "h7i1j2e3-k4l5-8m6n-9o7p-0q8r1s2t3u4v",
+      flightId: "f5g9h0c1-i2j3-6k4l-7m5n-8o6p9q0r1s2t",
+      seatNumber: "12A",
+      passengerName: "John Doe",
+      mealPreference: "Vegetarian"
+    },
+    {
+      id: "k0l4m5h6-n7o8-1p9q-2r0s-3t1u4v5w6x7y",
+      bookingId: "i8j2k3f4-l5m6-9n7o-0p8q-1r9s2t3u4v5w",
+      flightId: "g6h0i1d2-j3k4-7l5m-8n6o-9p7q0r1s2t3u",
+      seatNumber: "23F",
+      passengerName: "Jane Smith",
+      mealPreference: "Standard"
+    }
+  ])
+}
